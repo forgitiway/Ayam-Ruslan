@@ -14,8 +14,8 @@ export default function AdminApprovalPage() {
               <span className="text-xs font-bold text-indigo-600">{p.id} • Pemohon: {p.pemohon}</span>
               <h3 className="text-lg font-bold">{p.alat}</h3>
               <p className="text-xs text-zinc-500">{p.jadwal}</p>
-              <p className="text-xs italic text-zinc-600 mt-1">"{p.alasan}"</p>
             </div>
+              <p className="text-xs italic text-zinc-600 mt-1">{p.alasan}</p>
             <div className="flex gap-2">
               <button className="rounded-xl bg-rose-100 px-4 py-2 text-xs font-bold text-rose-700 hover:bg-rose-200">Tolak</button>
               <button className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-500">Setujui</button>

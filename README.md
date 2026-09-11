@@ -1,128 +1,214 @@
-# RideRent — Sistem Peminjaman & Rental Kendaraan
+# CamSpace — Sistem Penyewaan Kamera dan Peralatan Content Creation
 
-Platform peminjaman dan rental kendaraan berbasis web yang memudahkan pengguna dalam mencari kendaraan, mengajukan peminjaman, memantau status, hingga proses approval oleh admin.
+Platform penyewaan kamera dan peralatan content creation berbasis web yang memudahkan pengguna dalam mencari alat, melihat detail dan ketersediaan, mengajukan peminjaman, serta memantau status peminjaman. Sistem juga menyediakan fitur approval bagi admin untuk mengelola pengajuan peminjaman.
 
 [Deskripsi](#-deskripsi-project) • [Fitur](#-fitur-utama) • [Tech Stack](#-tech-stack) • [Struktur Peran](#-struktur-peran-role) • [Anggota Kelompok](#-anggota-kelompok)
 
 
 ## Deskripsi Project
 
-### **Tema: Peminjaman / Rental Kendaraan**
+### **Tema: Penyewaan Kamera dan Peralatan Content Creation**
 
-**RideRent** adalah platform peminjaman dan rental kendaraan berbasis web yang memungkinkan pengguna untuk mencari, memilih, dan mengajukan peminjaman kendaraan secara online. Platform ini menyediakan berbagai pilihan kendaraan seperti **motor dan mobil**, lengkap dengan informasi harga sewa, jenis kendaraan, kapasitas, transmisi, serta status ketersediaannya.
-RideRent dirancang untuk memudahkan proses peminjaman mulai dari pemilihan kendaraan, pengecekan ketersediaan berdasarkan tanggal, pengajuan peminjaman, hingga proses **approval atau rejection** oleh admin. Pengguna juga dapat memantau status peminjaman dan melihat riwayat peminjaman yang telah dilakukan.
+**CamSpace** adalah platform penyewaan kamera dan peralatan pendukung pembuatan konten berbasis web yang memungkinkan pengguna untuk mencari, memilih, dan mengajukan peminjaman alat secara online.
+
+CamSpace menyediakan berbagai pilihan peralatan seperti **kamera DSLR, mirrorless, digicam, tripod, lighting, microphone**, dan peralatan pendukung lainnya. Setiap alat dilengkapi dengan informasi berupa foto, nama, kategori, deskripsi, harga sewa, serta ketersediaan alat.
+
+Sistem dirancang untuk memudahkan proses penyewaan mulai dari melihat katalog, melihat detail alat, mengajukan peminjaman berdasarkan tanggal dan kebutuhan, hingga proses **approval atau rejection** oleh admin. Pengguna juga dapat memantau status pengajuan, melihat dashboard, dan melihat riwayat peminjaman.
 
 
 ## Fitur Utama
 
 ### **1. Autentikasi & Otorisasi**
-1. Registrasi akun pengguna.
-2. Login dan logout.
-3. Authentication untuk menjaga keamanan akun.
-4. Authorization berdasarkan role pengguna.
-5. Role yang tersedia:
-  - **User**
-  - **Admin**
-6. Proteksi halaman berdasarkan role.
 
-### **2. Katalog & Manajemen Kendaraan**
-Pengguna dapat melihat daftar kendaraan yang tersedia untuk dipinjam.
+Pengguna dapat melakukan:
 
-Informasi kendaraan meliputi:
-1. Nama kendaraan.
-2. Foto kendaraan.
-3. Jenis kendaraan (**Motor / Mobil**).
-4. Harga rental per hari.
-5. Kapasitas penumpang.
-6. Transmisi.
-7. Tahun kendaraan.
-8. Status ketersediaan.
+1. Registrasi akun.
+2. Login.
+3. Logout.
+4. Authentication untuk menjaga akses akun.
+5. Authorization berdasarkan role pengguna.
 
-Admin dapat melakukan:
-1. Menambah data kendaraan.
-2. Melihat data kendaraan.
-3. Mengubah data kendaraan.
-4. Menghapus data kendaraan.
-5. Mengubah status kendaraan.
+Role yang tersedia:
 
-Status kendaraan:
-1. 🟢 **Tersedia**
-2. 🔴 **Sedang Disewa**
-3. 🟡 **Maintenance**
+- **User**
+- **Admin**
 
-### **3. Pengajuan Peminjaman**
+Halaman dan fitur dapat dibedakan berdasarkan role pengguna dan admin.
+
+
+### **2. Katalog Alat**
+
+Pengguna dapat melihat berbagai kamera dan peralatan content creation yang tersedia.
+
+Kategori alat yang tersedia meliputi:
+
+1. **DSLR**
+2. **Mirrorless**
+3. **Digicam**
+4. **Tripod**
+5. **Lighting**
+6. **Microphone**
+7. Peralatan pendukung lainnya.
+
+Informasi alat meliputi:
+
+1. Nama alat.
+2. Foto alat.
+3. Kategori.
+4. Deskripsi.
+5. Harga sewa per hari.
+6. Jumlah stok.
+7. Status ketersediaan.
+
+
+### **3. Detail Alat**
+
+Pengguna dapat melihat informasi lengkap dari alat yang dipilih.
+
+Detail alat meliputi:
+
+1. Foto alat.
+2. Nama alat.
+3. Kategori.
+4. Deskripsi alat.
+5. Harga sewa per hari.
+6. Jumlah alat yang tersedia.
+7. Tombol untuk mengajukan peminjaman.
+
+Contoh alat:
+
+**Canon EOS 600D**
+
+- Kategori: DSLR
+- Harga: Rp100.000 / hari
+- Ketersediaan: 2 unit
+- Status: Siap Sewa
+
+
+### **4. Pengajuan Peminjaman**
+
+Pengguna dapat mengajukan peminjaman alat melalui form pengajuan.
+
 User dapat:
-1. Memilih kendaraan.
+
+1. Memilih alat.
 2. Menentukan tanggal mulai peminjaman.
 3. Menentukan tanggal selesai peminjaman.
-4. Mengisi tujuan penggunaan kendaraan.
+4. Mengisi keperluan peminjaman.
 5. Mengirim pengajuan peminjaman.
-Sistem melakukan pengecekan ketersediaan kendaraan berdasarkan periode peminjaman untuk mencegah terjadinya **double booking**.
 
-### **4. Status & Riwayat Peminjaman**
-User dapat melihat status pengajuan peminjaman:
-1. 🟡 **Pending** — Pengajuan sedang menunggu approval admin.
-2. 🟢 **Approved** — Pengajuan telah disetujui.
-3. 🔴 **Rejected** — Pengajuan ditolak oleh admin.
-4. 🔵 **Ongoing** — Kendaraan sedang digunakan.
-5. ⚫ **Returned** — Kendaraan telah dikembalikan.
-6. ⚪ **Cancelled** — Pengajuan dibatalkan.
-User juga dapat melihat **riwayat peminjaman** yang pernah dilakukan.
+Form pengajuan tersedia pada halaman **Ajukan Peminjaman**.
 
-### **5. Panel Approval Admin**
+
+### **5. Status Peminjaman**
+
+Pengguna dapat memantau status pengajuan peminjaman.
+
+Status peminjaman meliputi:
+
+1. 🟡 **Menunggu Approval** — Pengajuan sedang menunggu persetujuan admin.
+2. 🟢 **Disetujui** — Pengajuan telah disetujui oleh admin.
+3. 🔴 **Ditolak** — Pengajuan ditolak oleh admin.
+4. 🔵 **Sedang Dipinjam** — Alat sedang digunakan oleh pengguna.
+5. ⚪ **Selesai** — Proses peminjaman telah selesai.
+
+Halaman status menampilkan informasi alat, nomor pengajuan, tanggal peminjaman, dan status pengajuan.
+
+
+### **6. Panel Approval Admin**
+
+Admin memiliki halaman khusus untuk memeriksa pengajuan peminjaman.
+
 Admin dapat:
-1. Melihat seluruh pengajuan peminjaman.
-2. Melihat detail pengajuan.
-3. Memeriksa ketersediaan kendaraan.
+
+1. Melihat daftar pengajuan.
+2. Melihat informasi peminjaman.
+3. Memeriksa alat yang diajukan.
 4. Menyetujui pengajuan (**Approval**).
 5. Menolak pengajuan (**Rejection**).
-6. Memberikan alasan penolakan.
-7. Mengubah status peminjaman.
+6. Memantau status pengajuan.
 
-### **6. Kalkulator Estimasi Biaya**
-Sistem menghitung estimasi biaya peminjaman berdasarkan:
-**Harga kendaraan × Durasi peminjaman**
+Panel approval digunakan untuk membantu admin dalam mengelola proses peminjaman.
 
-Kendaraan : Honda Vario 160
-Harga     : Rp100.000 / hari
-Durasi    : 3 hari
------------------------------
-Total     : Rp300.000
 
-### **7. Pengembalian Kendaraan**
-Setelah masa peminjaman selesai, pengguna dapat melakukan proses pengembalian kendaraan.
-Fitur pengembalian meliputi:
-1. User dapat mengajukan pengembalian kendaraan.
-2. Admin dapat mengonfirmasi pengembalian kendaraan.
-3. Status peminjaman berubah menjadi **Returned** setelah dikonfirmasi.
-4. Status kendaraan kembali menjadi **Tersedia** setelah kendaraan dikembalikan.
-5. Admin dapat memperbarui kondisi kendaraan setelah proses pengembalian.
+### **7. Dashboard**
 
-### **8. Search & Filter Kendaraan**
-Pengguna dapat mencari dan memfilter kendaraan berdasarkan beberapa kriteria.
-Fitur meliputi:
-1. Pencarian berdasarkan nama kendaraan.
-2. Filter berdasarkan jenis kendaraan:
-  - **Motor**
-  - **Mobil**
-3. Filter berdasarkan harga rental.
-4. Filter berdasarkan kapasitas kendaraan.
-5. Filter berdasarkan transmisi.
-6. Filter berdasarkan status ketersediaan kendaraan.
+Dashboard digunakan untuk memberikan ringkasan aktivitas peminjaman pengguna.
 
-### **9. Dashboard Admin**
-Admin memiliki dashboard untuk memantau dan mengelola aktivitas peminjaman kendaraan.
 Dashboard menampilkan:
-1. Total kendaraan.
-2. Jumlah kendaraan yang tersedia.
-3. Jumlah kendaraan yang sedang disewa.
-4. Jumlah kendaraan dalam maintenance.
-5. Jumlah pengajuan yang menunggu approval.
-6. Jumlah peminjaman yang sedang berlangsung.
-7. Jumlah peminjaman yang telah selesai.
+
+1. Jumlah peminjaman aktif.
+2. Jumlah pengajuan yang menunggu approval.
+3. Jumlah peminjaman yang telah selesai.
+4. Daftar peminjaman terbaru.
+5. Status peminjaman terbaru.
+6. Akses cepat menuju katalog alat.
+
+Dashboard membantu pengguna melihat ringkasan aktivitas peminjaman tanpa harus membuka setiap halaman secara terpisah.
+
+
+### **8. Riwayat Peminjaman**
+
+Pengguna dapat melihat daftar peminjaman yang telah dilakukan.
+
+Informasi riwayat meliputi:
+
+1. Nomor pengajuan.
+2. Nama alat.
+3. Tanggal peminjaman.
+4. Keperluan peminjaman.
+5. Status peminjaman.
+
+Riwayat digunakan untuk melihat kembali aktivitas peminjaman yang pernah dilakukan oleh pengguna.
+
+
+### **9. Search & Navigasi Alat**
+
+Pengguna dapat mencari dan menemukan alat yang dibutuhkan melalui katalog.
+
+Fitur meliputi:
+
+1. Pencarian berdasarkan nama alat.
+2. Melihat alat berdasarkan kategori.
+3. Melihat detail alat.
+4. Melihat harga sewa.
+5. Melihat ketersediaan alat.
+6. Melanjutkan ke proses pengajuan peminjaman.
+
+
+## Tech Stack
+
+Teknologi yang digunakan dalam pengembangan CamSpace:
+
+- **Next.js**
+- **React**
+- **JavaScript**
+- **Tailwind CSS**
+- **Next.js App Router**
+
+Pada tahap pengembangan frontend, data alat dan data peminjaman masih menggunakan **data dummy** untuk menampilkan dan menguji antarmuka sistem.
+
 
 ## Struktur Peran (Role)
+
 | **Role** | **Akses & Hak Akses** |
 |----------|-----------------------|
-| **User (Peminjam)** | Registrasi dan login, melihat katalog kendaraan, mencari dan memfilter kendaraan, melihat detail kendaraan, mengecek ketersediaan, mengajukan peminjaman, melihat estimasi biaya, memantau status peminjaman, melihat riwayat, dan mengajukan pengembalian kendaraan. |
-| **Admin / Manajemen** | Mengelola data kendaraan (CRUD), mengatur status kendaraan, melihat seluruh pengajuan peminjaman, melakukan approval/rejection, mengelola data peminjaman, dan mengonfirmasi pengembalian kendaraan. |
+| **User (Peminjam)** | Registrasi dan login, melihat katalog alat, mencari alat, melihat detail alat, melihat ketersediaan, mengajukan peminjaman, melihat status peminjaman, melihat dashboard, dan melihat riwayat peminjaman. |
+| **Admin** | Login sebagai admin, melihat daftar pengajuan peminjaman, memeriksa pengajuan, melakukan approval atau rejection, dan memantau proses peminjaman. |
+
+
+## Struktur Halaman
+
+Struktur halaman utama CamSpace:
+
+```text
+/                       → Beranda
+/login                  → Login
+/register               → Registrasi
+/dashboard              → Dashboard pengguna
+/kamera                 → Katalog alat
+/kamera/[id]            → Detail alat
+/peminjaman             → Peminjaman saya
+/peminjaman/ajukan      → Form pengajuan peminjaman
+/status                 → Status peminjaman
+/admin/approval         → Approval pengajuan oleh admin

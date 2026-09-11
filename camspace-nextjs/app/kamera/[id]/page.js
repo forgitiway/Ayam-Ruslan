@@ -56,7 +56,7 @@ export default async function DetailAlatPage({ params }) {
           </p>
 
           <Link
-            href="/peminjaman/ajukan"
+            href={`/peminjaman/ajukan?id=${item.id}`}
             className="block text-center w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white transition hover:bg-indigo-500 shadow-md shadow-indigo-500/20"
           >
             Ajukan Peminjaman Alat Ini
