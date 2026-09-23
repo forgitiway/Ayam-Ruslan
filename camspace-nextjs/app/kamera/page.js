@@ -4,94 +4,139 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 
-const imageMap = {
-  "Sony A7III":
-    "https://images.unsplash.com/photo-1516035069371-29a1b244cc32",
-  "Canon EOS R6":
-    "https://images.unsplash.com/photo-1617005082133-548c4dd27f35",
-  "Tripod Manfrotto":
-    "https://images.unsplash.com/photo-1510127034890-ba27508e9f1c",
-  "Lensa Canon 50mm f/1.8":
-    "https://images.unsplash.com/photo-1516724562728-afc824a36e84",
-  "GoPro Hero 11 Black":
-    "https://images.unsplash.com/photo-1502920917128-1aa500764cbd",
-  "Sony FE 16-35mm f/2.8 GM":
-    "https://images.unsplash.com/photo-1512790182412-b19e6d62bc39",
-  "Drone DJI Mini 3":
-    "https://images.unsplash.com/photo-1473968512647-3e447244af8f",
-  "Mic Rode VideoMic GO":
-    "https://images.unsplash.com/photo-1516280440614-37939bbacd81",
-};
+export default function KatalogPage() {
+  const [dataKamera, setDataKamera] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
-const extraEquipment = [
-  {
-    id: "demo-1",
-    name: "GoPro Hero 11 Black",
-    category: "KAMERA",
-    stock: 4,
-    price_per_day: 100000,
-    image_url:
-      "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&q=80",
-  },
-  {
-    id: "demo-2",
-    name: "Lensa Canon 50mm f/1.8",
-    category: "LENSA",
-    stock: 5,
-    price_per_day: 75000,
-    image_url:
-      "https://images.unsplash.com/photo-1516724562728-afc824a36e84?w=800&q=80",
-  },
-  {
-    id: "demo-3",
-    name: "Sony FE 16-35mm f/2.8 GM",
-    category: "LENSA",
-    stock: 3,
-    price_per_day: 120000,
-    image_url:
-      "https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?w=800&q=80",
-  },
-  {
-    id: "demo-4",
-    name: "Drone DJI Mini 3",
-    category: "AKSESORIS",
-    stock: 2,
-    price_per_day: 200000,
-    image_url:
-      "https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&q=80",
-  },
-  {
-    id: "demo-5",
-    name: "Mic Rode VideoMic GO",
-    category: "AKSESORIS",
-    stock: 6,
-    price_per_day: 50000,
-    image_url:
-      "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&q=80",
-  },
-];
+  // =========================
+  // AMBIL DATA ALAT
+  // =========================
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        setErrorMessage("");
 
-const getImage = (item) => imageMap[item.name] || imageMap["Sony A7III"];
+        // Cek user yang sedang login
+        const currentUser = localStorage.getItem(
+          "camspace_current_user"
+        );
 
-export default async function KatalogPage() {
-  let dataKamera = [];
+        if (currentUser) {
+          const userData = JSON.parse(currentUser);
+          setIsAdmin(userData.role === "admin");
+        }
 
-  try {
-    const response = await apiFetch("/equipment", {
-      token: process.env.NEXT_PUBLIC_DEV_TOKEN,
-    });
+        // Ambil data alat dari API
+        const response = await apiFetch("/equipment", {
+          token: process.env.NEXT_PUBLIC_DEV_TOKEN,
+        });
 
-    dataKamera = response.data || response;
-  } catch (error) {
+        const equipmentData = response.data || response;
+
+        setDataKamera(equipmentData);
+      } catch (error) {
+        console.error(
+          "Gagal mengambil data alat:",
+          error
+        );
+
+        setErrorMessage(
+          error.message || "Gagal mengambil data alat."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  // =========================
+  // HAPUS ALAT
+  // =========================
+  async function handleDelete(id, name) {
+    const confirmed = window.confirm(
+      `Apakah kamu yakin ingin menghapus "${name}"?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `/api/equipment/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Gagal menghapus alat."
+        );
+      }
+
+      // Hapus dari tampilan tanpa reload
+      setDataKamera((prev) =>
+        prev.filter((item) => item.id !== id)
+      );
+
+      alert("Alat berhasil dihapus.");
+    } catch (error) {
+      console.error(
+        "Gagal menghapus alat:",
+        error
+      );
+
+      alert(
+        error.message || "Gagal menghapus alat."
+      );
+    }
+  }
+
+  // =========================
+  // LOADING
+  // =========================
+  if (loading) {
     return (
-      <div className="mx-auto max-w-7xl px-6 py-12">
-        <h1 className="text-4xl font-black tracking-tight">
+      <div className="mx-auto max-w-6xl px-6 py-12">
+        <h1 className="text-3xl font-black tracking-tight">
+          Katalog Alat Multimedia
+        </h1>
+
+        <div className="mt-6 rounded-xl border border-zinc-200 p-6 dark:border-zinc-800">
+          <p className="text-zinc-500 dark:text-zinc-400">
+            Memuat data alat...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // =========================
+  // ERROR
+  // =========================
+  if (errorMessage) {
+    return (
+      <div className="mx-auto max-w-6xl px-6 py-12">
+        <h1 className="text-3xl font-black tracking-tight">
           Katalog Alat Multimedia
         </h1>
 
         <div className="mt-6 rounded-xl border border-zinc-300 bg-zinc-100 p-5 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
-          <p className="font-semibold">Gagal mengambil data alat</p>
-          <p className="mt-1 text-sm">{error.message}</p>
+          <p className="font-semibold">
+            Gagal mengambil data alat
+          </p>
+
+          <p className="mt-1 text-sm">
+            {errorMessage}
+          </p>
         </div>
       </div>
     );
@@ -99,30 +144,59 @@ export default async function KatalogPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12 space-y-8">
-      <div>
-        <h1 className="text-3xl font-black tracking-tight">
-          Katalog Alat Multimedia
-        </h1>
 
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Pilih alat multimedia sesuai kebutuhan produksi kamu.
-        </p>
+      {/* =========================
+          HEADER
+      ========================= */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight">
+            Katalog Alat Multimedia
+          </h1>
+
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Pilih alat multimedia sesuai kebutuhan produksi kamu.
+          </p>
+        </div>
+
+        {/* TOMBOL TAMBAH ADMIN */}
+        {isAdmin && (
+          <Link
+            href="/kamera/tambah"
+            className="rounded-xl bg-black px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+          >
+            + Tambah Alat
+          </Link>
+        )}
       </div>
 
+      {/* =========================
+          DATA KOSONG
+      ========================= */}
       {dataKamera.length === 0 ? (
-        <div className="rounded-2xl border border-zinc-200 p-8 text-center">
-          <p className="text-zinc-500">
+        <div className="rounded-2xl border border-zinc-200 p-8 text-center dark:border-zinc-800">
+          <p className="text-zinc-500 dark:text-zinc-400">
             Belum ada alat multimedia tersedia.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        /* =========================
+           GRID KATALOG
+        ========================= */
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+
           {dataKamera.map((item) => (
             <div
               key={item.id}
-              className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 flex flex-col justify-between"
+              className="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
             >
+
+              {/* =========================
+                  INFORMASI ALAT
+              ========================= */}
               <div>
+
+                {/* GAMBAR */}
                 <div className="h-44 w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
                   {item.image_url ? (
                     <img
@@ -137,8 +211,9 @@ export default async function KatalogPage() {
                   )}
                 </div>
 
+                {/* KATEGORI & STOK */}
                 <div className="mt-4 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                     {item.category}
                   </span>
 
@@ -147,26 +222,69 @@ export default async function KatalogPage() {
                   </span>
                 </div>
 
-                <h3 className="text-lg font-bold mt-1">
+                {/* NAMA ALAT */}
+                <h3 className="mt-1 text-lg font-bold">
                   {item.name}
                 </h3>
 
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-                  Rp{Number(item.price_per_day).toLocaleString("id-ID")} / hari
+                {/* HARGA */}
+                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                  Rp
+                  {Number(
+                    item.price_per_day
+                  ).toLocaleString("id-ID")}{" "}
+                  / hari
                 </p>
+              </div>
 
-              <Link
-                href={`/kamera/${item.id}`}
-                className="mt-4 block text-center rounded-xl bg-black py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-              >
-                Lihat Detail & Sewa
-              </Link>
+              {/* =========================
+                  TOMBOL USER
+              ========================= */}
+              {!isAdmin && (
+                <Link
+                  href={`/kamera/${item.id}`}
+                  className="mt-4 block rounded-xl bg-black py-2.5 text-center text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                >
+                  Lihat Detail & Sewa
+                </Link>
+              )}
+
+              {/* =========================
+                  TOMBOL ADMIN
+              ========================= */}
+              {isAdmin && (
+                <div className="mt-3 grid grid-cols-2 gap-2">
+
+                  {/* EDIT */}
+                  <Link
+                    href={`/kamera/${item.id}/edit`}
+                    className="rounded-lg border border-zinc-300 px-3 py-2 text-center text-xs font-semibold transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                  >
+                    Edit
+                  </Link>
+
+                  {/* HAPUS */}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleDelete(
+                        item.id,
+                        item.name
+                      )
+                    }
+                    className="rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-red-700"
+                  >
+                    Hapus
+                  </button>
+
+                </div>
+              )}
+
             </div>
           ))}
 
         </div>
       )}
-
     </div>
   );
 }
