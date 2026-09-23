@@ -2,6 +2,15 @@ const BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 const PROJECT = process.env.NEXT_PUBLIC_PROJECT_ID;
 const KEY = process.env.NEXT_PUBLIC_API_KEY;
 
+/**
+ * @param {string} path
+ * @param {{
+ *   method?: string,
+ *   body?: any,
+ *   token?: string
+ * }} options
+ * @returns {Promise<any>}
+ */
 export async function apiFetch(
   path,
   { method = "GET", body, token } = {}
@@ -42,27 +51,27 @@ export async function apiFetch(
     }
   );
 
- const text = await res.text();
+  const text = await res.text();
 
-console.log("STATUS API:", res.status);
-console.log("RESPONSE API:", text);
+  console.log("STATUS API:", res.status);
+  console.log("RESPONSE API:", text);
 
-let data = {};
+  let data = {};
 
-try {
-  data = text ? JSON.parse(text) : {};
-} catch {
-  throw new Error(
-    `API mengembalikan response bukan JSON. Status: ${res.status}. Response: ${text.substring(
-      0,
-      300
-    )}`
-  );
-}
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    throw new Error(
+      `API mengembalikan response bukan JSON. Status: ${res.status}. Response: ${text.substring(
+        0,
+        300
+      )}`
+    );
+  }
 
-if (!res.ok) {
-  throw new Error(data.message || res.statusText);
-}
+  if (!res.ok) {
+    throw new Error(data.message || res.statusText);
+  }
 
-return data;
+  return data;
 }

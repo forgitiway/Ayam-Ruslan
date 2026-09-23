@@ -1,30 +1,378 @@
-import Link from "next/link";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { apiFetch } from "@/lib/api";
 
 export default function StatusPage() {
-  const statusList = [
-    { id: "REQ-101", alat: "Canon EOS 600D", tanggal: "12 - 14 Sept 2026", status: "Menunggu Approval", warna: "bg-amber-100 text-amber-800" },
-    { id: "REQ-102", alat: "Sony Alpha A6000", tanggal: "15 - 16 Sept 2026", status: "Disetujui", warna: "bg-emerald-100 text-emerald-800" },
-    { id: "REQ-103", alat: "Lighting Softbox Kit", tanggal: "01 - 02 Sept 2026", status: "Selesai", warna: "bg-zinc-200 text-zinc-800" },
-  ];
+  const router = useRouter();
+
+  const [rentals, setRentals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadRentals() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const token =
+          localStorage.getItem("camspace_token");
+
+        console.log(
+          "TOKEN STATUS ADA:",
+          !!token
+        );
+
+        // ==============================
+        // CEK LOGIN
+        // ==============================
+
+        if (!token) {
+          router.replace("/login");
+          return;
+        }
+
+        // ==============================
+        // AMBIL DATA USER
+        // ==============================
+
+        const userResponse = await apiFetch("/me", {
+          method: "GET",
+          token: token,
+        });
+
+        console.log(
+          "USER STATUS:",
+          userResponse
+        );
+
+        const userId =
+          userResponse.data?.user_id;
+
+        if (!userId) {
+          throw new Error(
+            "ID pengguna tidak ditemukan."
+          );
+        }
+
+        console.log(
+          "USER ID:",
+          userId
+        );
+
+        // ==============================
+        // AMBIL SEMUA DATA RENTAL
+        // MELALUI API LOKAL
+        // ==============================
+
+        const rentalResponse = await fetch(
+          "/api/rentals",
+          {
+            method: "GET",
+          }
+        );
+
+        const rentalData =
+          await rentalResponse.json();
+
+        console.log(
+          "DATA RENTALS:",
+          rentalData
+        );
+
+        if (!rentalResponse.ok) {
+          throw new Error(
+            rentalData.message ||
+              "Gagal mengambil data peminjaman."
+          );
+        }
+
+        const data =
+          rentalData.data || rentalData;
+
+        if (!Array.isArray(data)) {
+          throw new Error(
+            "Format data peminjaman tidak sesuai."
+          );
+        }
+
+        // ==============================
+        // FILTER BERDASARKAN USER LOGIN
+        // ==============================
+
+        const userRentals = data.filter(
+          (rental) =>
+            Number(rental.user_id) ===
+            Number(userId)
+        );
+
+        console.log(
+          "PEMINJAMAN USER:",
+          userRentals
+        );
+
+        setRentals(userRentals);
+      } catch (error) {
+        console.error(
+          "ERROR STATUS:",
+          error
+        );
+
+        setError(
+          error.message ||
+            "Gagal mengambil data peminjaman."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadRentals();
+  }, [router]);
+
+  function formatTanggal(tanggal) {
+    if (!tanggal) return "-";
+
+    return new Date(
+      tanggal
+    ).toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  }
+
+  function formatRupiah(nominal) {
+    return `Rp${Number(
+      nominal || 0
+    ).toLocaleString("id-ID")}`;
+  }
+
+  function getStatus(status) {
+    switch (status) {
+      case "pending":
+        return {
+          text: "Menunggu Persetujuan",
+          className:
+            "bg-yellow-100 text-yellow-700",
+        };
+
+      case "approved":
+        return {
+          text: "Disetujui",
+          className:
+            "bg-green-100 text-green-700",
+        };
+
+      case "rejected":
+        return {
+          text: "Ditolak",
+          className:
+            "bg-red-100 text-red-700",
+        };
+
+      case "ongoing":
+        return {
+          text: "Sedang Dipinjam",
+          className:
+            "bg-blue-100 text-blue-700",
+        };
+
+      case "completed":
+        return {
+          text: "Selesai",
+          className:
+            "bg-zinc-100 text-zinc-700",
+        };
+
+      default:
+        return {
+          text: status || "Tidak diketahui",
+          className:
+            "bg-zinc-100 text-zinc-700",
+        };
+    }
+  }
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-black">Status Peminjaman</h1>
-        <Link href="/peminjaman/ajukan" className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">+ Pinjam Lagi</Link>
+    <div className="mx-auto max-w-6xl px-6 py-12">
+
+      {/* HEADER */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-black">
+          Status Peminjaman
+        </h1>
+
+        <p className="mt-1 text-sm text-zinc-500">
+          Pantau status pengajuan peminjaman
+          alat kamu.
+        </p>
       </div>
-      <div className="space-y-4">
-        {statusList.map((item) => (
-          <div key={item.id} className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 flex justify-between items-center">
-            <div>
-              <span className="text-xs font-bold text-zinc-400">{item.id}</span>
-              <h3 className="text-lg font-bold">{item.alat}</h3>
-              <p className="text-xs text-zinc-500">{item.tanggal}</p>
-            </div>
-            <span className={`px-3 py-1 rounded-full text-xs font-bold ${item.warna}`}>{item.status}</span>
+
+      {/* LOADING */}
+      {loading && (
+        <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-900">
+          <p className="text-sm text-zinc-500">
+            Memuat data peminjaman...
+          </p>
+        </div>
+      )}
+
+      {/* ERROR */}
+      {!loading && error && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-red-700">
+          <p className="font-semibold">
+            Gagal mengambil data peminjaman
+          </p>
+
+          <p className="mt-1 text-sm">
+            {error}
+          </p>
+        </div>
+      )}
+
+      {/* BELUM ADA PEMINJAMAN */}
+      {!loading &&
+        !error &&
+        rentals.length === 0 && (
+          <div className="rounded-2xl border border-zinc-200 bg-white p-10 text-center dark:border-zinc-800 dark:bg-zinc-900">
+
+            <h2 className="text-lg font-bold">
+              Belum Ada Peminjaman
+            </h2>
+
+            <p className="mt-2 text-sm text-zinc-500">
+              Kamu belum memiliki pengajuan
+              peminjaman alat.
+            </p>
+
+            <button
+              onClick={() =>
+                router.push("/kamera")
+              }
+              className="mt-5 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500"
+            >
+              Lihat Katalog Alat
+            </button>
+
           </div>
-        ))}
-      </div>
+        )}
+
+      {/* DATA PEMINJAMAN */}
+      {!loading &&
+        !error &&
+        rentals.length > 0 && (
+          <div className="space-y-5">
+
+            {rentals.map((rental) => {
+              const status = getStatus(
+                rental.status
+              );
+
+              return (
+                <div
+                  key={rental.id}
+                  className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
+                >
+
+                  {/* INFORMASI UTAMA */}
+                  <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
+                        Peminjaman #{rental.id}
+                      </p>
+
+                      <h2 className="mt-1 text-xl font-bold">
+                        {rental.equipment_name}
+                      </h2>
+
+                      <p className="mt-1 text-sm text-zinc-500">
+                        {rental.equipment_category}
+                      </p>
+                    </div>
+
+                    <span
+                      className={`w-fit rounded-full px-4 py-2 text-xs font-semibold ${status.className}`}
+                    >
+                      {status.text}
+                    </span>
+
+                  </div>
+
+                  {/* DETAIL */}
+                  <div className="mt-6 grid grid-cols-1 gap-4 border-t border-zinc-100 pt-5 sm:grid-cols-2 md:grid-cols-4 dark:border-zinc-800">
+
+                    <div>
+                      <p className="text-xs text-zinc-500">
+                        Tanggal Mulai
+                      </p>
+
+                      <p className="mt-1 text-sm font-semibold">
+                        {formatTanggal(
+                          rental.start_date
+                        )}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-zinc-500">
+                        Tanggal Selesai
+                      </p>
+
+                      <p className="mt-1 text-sm font-semibold">
+                        {formatTanggal(
+                          rental.end_date
+                        )}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-zinc-500">
+                        Jumlah
+                      </p>
+
+                      <p className="mt-1 text-sm font-semibold">
+                        {rental.quantity} Unit
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-zinc-500">
+                        Total Harga
+                      </p>
+
+                      <p className="mt-1 text-sm font-semibold">
+                        {formatRupiah(
+                          rental.total_price
+                        )}
+                      </p>
+                    </div>
+
+                  </div>
+
+                  {/* CATATAN ADMIN */}
+                  {rental.admin_note && (
+                    <div className="mt-5 rounded-xl bg-zinc-50 p-4 dark:bg-zinc-800">
+                      <p className="text-xs font-semibold text-zinc-500">
+                        Catatan Admin
+                      </p>
+
+                      <p className="mt-1 text-sm">
+                        {rental.admin_note}
+                      </p>
+                    </div>
+                  )}
+
+                </div>
+              );
+            })}
+
+          </div>
+        )}
+
     </div>
   );
 }

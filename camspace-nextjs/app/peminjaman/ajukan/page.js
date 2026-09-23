@@ -1,89 +1,129 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { apiFetch } from "@/lib/api";
 
-export default function AjukanPage() {
+export default function AjukanPeminjamanPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const equipmentIdFromUrl = searchParams.get("id");
 
-  const [dataKamera, setDataKamera] = useState([]);
-  const [equipmentId, setEquipmentId] = useState(
-    equipmentIdFromUrl || ""
-  );
+  const equipmentId = searchParams.get("id");
+
+  const [user, setUser] = useState(null);
+  const [equipment, setEquipment] = useState(null);
+
+  const [loadingEquipment, setLoadingEquipment] = useState(true);
+  const [loadingUser, setLoadingUser] = useState(true);
+
   const [tanggalMulai, setTanggalMulai] = useState("");
   const [tanggalSelesai, setTanggalSelesai] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [keperluan, setKeperluan] = useState("");
 
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState("");
 
   useEffect(() => {
-    async function ambilDataAlat() {
+    const token = localStorage.getItem("camspace_token");
+
+    // Belum login
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+
+    // Tidak ada ID alat
+    if (!equipmentId) {
+      setLoadingEquipment(false);
+      return;
+    }
+
+    async function loadData() {
       try {
-        setLoading(true);
         setError("");
 
-        const response = await fetch("/api/equipment");
+        // =========================
+        // 1. AMBIL DATA USER
+        // =========================
 
-        const text = await response.text();
+        const userResponse = await apiFetch("/me", {
+          method: "GET",
+          token: token,
+        });
 
-        let result;
+        console.log("DATA USER PEMINJAMAN:", userResponse);
 
-        try {
-          result = JSON.parse(text);
-        } catch {
+        const userData = userResponse.data;
+
+        if (!userData || !userData.user_id) {
           throw new Error(
-            "Server mengembalikan response yang bukan JSON."
+            "Data user tidak ditemukan."
           );
         }
 
-        if (!response.ok) {
+        setUser(userData);
+
+        // =========================
+        // 2. AMBIL DATA ALAT
+        // =========================
+
+        const equipmentResponse = await fetch(
+          "/api/equipment"
+        );
+
+        const equipmentData =
+          await equipmentResponse.json();
+
+        if (!equipmentResponse.ok) {
           throw new Error(
-            result.message || "Gagal mengambil data alat."
+            equipmentData.message ||
+              "Gagal mengambil data alat."
           );
         }
 
-        const data = result.data || result;
+        const equipmentList =
+          equipmentData.data || equipmentData;
 
-        setDataKamera(data);
-
-        if (equipmentIdFromUrl) {
-          const alatAda = data.find(
+        const selectedEquipment =
+          equipmentList.find(
             (item) =>
-              String(item.id) === String(equipmentIdFromUrl)
+              String(item.id) ===
+              String(equipmentId)
           );
 
-          if (alatAda) {
-            setEquipmentId(String(alatAda.id));
-          }
+        if (!selectedEquipment) {
+          throw new Error(
+            "Alat tidak ditemukan."
+          );
         }
+
+        setEquipment(selectedEquipment);
       } catch (error) {
+        console.error(
+          "ERROR LOAD PEMINJAMAN:",
+          error
+        );
+
         setError(
-          error.message || "Gagal mengambil data alat."
+          error.message ||
+            "Gagal mengambil data."
         );
       } finally {
-        setLoading(false);
+        setLoadingUser(false);
+        setLoadingEquipment(false);
       }
     }
 
-    ambilDataAlat();
-  }, [equipmentIdFromUrl]);
+    loadData();
+  }, [equipmentId, router]);
 
   async function handleSubmit(event) {
     event.preventDefault();
 
     setError("");
-    setSuccess(false);
-
-    if (!equipmentId) {
-      setError("Silakan pilih alat terlebih dahulu.");
-      return;
-    }
+    setSuccess("");
 
     if (!tanggalMulai || !tanggalSelesai) {
       setError(
@@ -99,173 +139,270 @@ export default function AjukanPage() {
       return;
     }
 
-    if (Number(quantity) < 1) {
-      setError("Jumlah alat minimal 1.");
+    if (!user || !user.user_id) {
+      setError(
+        "Data pengguna belum tersedia."
+      );
       return;
     }
 
     try {
-      setSubmitting(true);
+      setLoadingSubmit(true);
 
-      const response = await fetch("/api/rentals", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: 1,
-          equipment_id: Number(equipmentId),
-          start_date: tanggalMulai,
-          end_date: tanggalSelesai,
-          quantity: Number(quantity),
-        }),
-      });
-
-      const text = await response.text();
-
-      let data;
-
-      try {
-        data = JSON.parse(text);
-      } catch {
-        throw new Error(
-          `Server mengembalikan response yang bukan JSON. Status: ${response.status}`
+      const token =
+        localStorage.getItem(
+          "camspace_token"
         );
+
+      if (!token) {
+        router.replace("/login");
+        return;
       }
+
+      // =========================
+      // DATA YANG DIKIRIM
+      // =========================
+
+      const rentalData = {
+        user_id: user.user_id,
+        equipment_id: Number(equipmentId),
+        start_date: tanggalMulai,
+        end_date: tanggalSelesai,
+        quantity: Number(quantity),
+      };
+
+      console.log(
+        "DATA PEMINJAMAN:",
+        rentalData
+      );
+
+      const response = await fetch(
+        "/api/rentals",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(
+            rentalData
+          ),
+        }
+      );
+
+      const data =
+        await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Gagal mengirim pengajuan."
+          data.message ||
+            "Gagal membuat pengajuan."
         );
       }
 
-      setSuccess(true);
+      console.log(
+        "HASIL PEMINJAMAN:",
+        data
+      );
 
-      setTanggalMulai("");
-      setTanggalSelesai("");
-      setQuantity(1);
-      setKeperluan("");
+      setSuccess(
+        "Pengajuan peminjaman berhasil dikirim."
+      );
+
+      setTimeout(() => {
+        router.push("/status");
+      }, 1500);
     } catch (error) {
+      console.error(
+        "ERROR PEMINJAMAN:",
+        error
+      );
+
       setError(
-        error.message || "Gagal mengirim pengajuan."
+        error.message ||
+          "Gagal membuat pengajuan."
       );
     } finally {
-      setSubmitting(false);
+      setLoadingSubmit(false);
     }
   }
 
+  // =========================
+  // ID ALAT TIDAK ADA
+  // =========================
+
+  if (!equipmentId) {
+    return (
+      <div className="mx-auto max-w-xl px-6 py-20 text-center space-y-4">
+        <h1 className="text-2xl font-bold">
+          ID Alat Tidak Ditemukan
+        </h1>
+
+        <p className="text-sm text-zinc-500">
+          Silakan pilih alat terlebih dahulu
+          dari katalog.
+        </p>
+
+        <button
+          onClick={() =>
+            router.push("/kamera")
+          }
+          className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500"
+        >
+          Kembali ke Katalog
+        </button>
+      </div>
+    );
+  }
+
+  // =========================
+  // LOADING
+  // =========================
+
+  if (
+    loadingEquipment ||
+    loadingUser
+  ) {
+    return (
+      <div className="mx-auto max-w-xl px-6 py-20 text-center">
+        <p className="text-zinc-500">
+          Memuat data...
+        </p>
+      </div>
+    );
+  }
+
+  // =========================
+  // ERROR
+  // =========================
+
+  if (error && !equipment) {
+    return (
+      <div className="mx-auto max-w-xl px-6 py-20 text-center space-y-4">
+        <h1 className="text-2xl font-bold">
+          Terjadi Kesalahan
+        </h1>
+
+        <p className="text-sm text-red-500">
+          {error}
+        </p>
+
+        <button
+          onClick={() =>
+            router.push("/kamera")
+          }
+          className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500"
+        >
+          Kembali ke Katalog
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="mx-auto max-w-2xl px-6 py-12 space-y-6">
-      <h1 className="text-3xl font-black">
-        Form Pengajuan Peminjaman
-      </h1>
+    <div className="mx-auto max-w-2xl px-6 py-12">
+      <button
+        onClick={() => router.back()}
+        className="mb-6 text-sm text-indigo-600 hover:underline"
+      >
+        ← Kembali
+      </button>
 
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 space-y-4">
+      <div className="space-y-6">
 
-        {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            {error}
+        {/* JUDUL */}
+        <div>
+          <h1 className="text-3xl font-black">
+            Ajukan Peminjaman
+          </h1>
+
+          <p className="mt-1 text-sm text-zinc-500">
+            Isi data peminjaman alat yang
+            kamu butuhkan.
+          </p>
+        </div>
+
+        {/* USER */}
+        {user && (
+          <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">
+              Akun Peminjam
+            </p>
+
+            <h2 className="mt-1 text-lg font-bold">
+              {user.name}
+            </h2>
+
+            <p className="text-sm text-zinc-500">
+              {user.email}
+            </p>
           </div>
         )}
 
-        {success && (
-          <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
-            <p className="font-semibold">
-              Pengajuan berhasil dikirim.
+        {/* ALAT */}
+        {equipment && (
+          <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">
+              Alat yang Dipilih
             </p>
 
-            <p className="mt-1">
-              Pengajuan kamu sedang menunggu proses dari admin.
-            </p>
+            <h2 className="mt-1 text-xl font-bold">
+              {equipment.name}
+            </h2>
 
-            <Link
-              href="/status"
-              className="mt-3 inline-block font-semibold underline"
-            >
-              Lihat Status Peminjaman
-            </Link>
+            <p className="mt-1 text-sm text-zinc-500">
+              {equipment.category} · Rp
+              {Number(
+                equipment.price_per_day
+              ).toLocaleString("id-ID")}{" "}
+              / hari
+            </p>
           </div>
         )}
 
+        {/* FORM */}
         <form
           onSubmit={handleSubmit}
-          className="space-y-4"
+          className="space-y-5 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
         >
+          {/* TANGGAL MULAI */}
           <div>
             <label className="block text-sm font-medium">
-              Pilih Alat
+              Tanggal Mulai
             </label>
 
-            {loading ? (
-              <div className="mt-1 rounded-xl border border-zinc-200 px-4 py-2.5 text-sm text-zinc-500">
-                Memuat daftar alat...
-              </div>
-            ) : dataKamera.length === 0 ? (
-              <div className="mt-1 rounded-xl border border-zinc-200 px-4 py-2.5 text-sm text-zinc-500">
-                Tidak ada alat yang tersedia.
-              </div>
-            ) : (
-              <select
-                value={equipmentId}
-                onChange={(event) =>
-                  setEquipmentId(event.target.value)
-                }
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm dark:border-zinc-800"
-              >
-                <option value="">
-                  -- Pilih Alat --
-                </option>
-
-                {dataKamera.map((item) => (
-                  <option
-                    key={item.id}
-                    value={item.id}
-                  >
-                    {item.name} - Rp
-                    {Number(
-                      item.price_per_day
-                    ).toLocaleString("id-ID")}
-                    /hari
-                  </option>
-                ))}
-              </select>
-            )}
+            <input
+              type="date"
+              value={tanggalMulai}
+              onChange={(event) =>
+                setTanggalMulai(
+                  event.target.value
+                )
+              }
+              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-zinc-800"
+            />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium">
-                Tanggal Mulai
-              </label>
+          {/* TANGGAL SELESAI */}
+          <div>
+            <label className="block text-sm font-medium">
+              Tanggal Selesai
+            </label>
 
-              <input
-                type="date"
-                value={tanggalMulai}
-                onChange={(event) =>
-                  setTanggalMulai(event.target.value)
-                }
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm dark:border-zinc-800"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">
-                Tanggal Selesai
-              </label>
-
-              <input
-                type="date"
-                value={tanggalSelesai}
-                onChange={(event) =>
-                  setTanggalSelesai(event.target.value)
-                }
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm dark:border-zinc-800"
-                required
-              />
-            </div>
+            <input
+              type="date"
+              value={tanggalSelesai}
+              onChange={(event) =>
+                setTanggalSelesai(
+                  event.target.value
+                )
+              }
+              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-zinc-800"
+            />
           </div>
 
+          {/* JUMLAH */}
           <div>
             <label className="block text-sm font-medium">
               Jumlah
@@ -276,45 +413,56 @@ export default function AjukanPage() {
               min="1"
               value={quantity}
               onChange={(event) =>
-                setQuantity(event.target.value)
+                setQuantity(
+                  event.target.value
+                )
               }
-              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm dark:border-zinc-800"
-              required
+              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-zinc-800"
             />
           </div>
 
+          {/* KEPERLUAN */}
           <div>
             <label className="block text-sm font-medium">
-              Keperluan Peminjaman
+              Keperluan
             </label>
 
             <textarea
-              rows="3"
               value={keperluan}
               onChange={(event) =>
-                setKeperluan(event.target.value)
+                setKeperluan(
+                  event.target.value
+                )
               }
-              placeholder="Kebutuhan tugas/konten..."
-              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm dark:border-zinc-800"
+              placeholder="Contoh: Untuk dokumentasi acara kampus"
+              rows={4}
+              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-zinc-800"
             />
-
-            <p className="mt-1 text-xs text-zinc-500">
-              Keperluan digunakan sebagai informasi pada form.
-            </p>
           </div>
 
+          {/* ERROR */}
+          {error && (
+            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
+
+          {/* SUCCESS */}
+          {success && (
+            <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-600">
+              {success}
+            </div>
+          )}
+
+          {/* SUBMIT */}
           <button
             type="submit"
-            disabled={
-              loading ||
-              submitting ||
-              dataKamera.length === 0
-            }
-            className="block w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={loadingSubmit}
+            className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {submitting
+            {loadingSubmit
               ? "Mengirim Pengajuan..."
-              : "Kirim Pengajuan"}
+              : "Ajukan Peminjaman"}
           </button>
         </form>
       </div>
