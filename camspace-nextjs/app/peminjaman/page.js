@@ -36,7 +36,7 @@ export default function PeminjamanPage() {
 
         <Link
           href="/peminjaman/ajukan"
-          className="rounded-xl bg-indigo-600 px-5 py-3 text-center text-sm font-semibold text-white hover:bg-indigo-500"
+          className="rounded-xl bg-black px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
         >
           + Ajukan Peminjaman
         </Link>
@@ -81,8 +81,8 @@ export default function PeminjamanPage() {
                 <span
                   className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
                     item.status === "Disetujui"
-                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                      : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                      ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
+                      : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
                   }`}
                 >
                   {item.status}
@@ -90,7 +90,7 @@ export default function PeminjamanPage() {
 
                 <Link
                   href="/status"
-                  className="text-sm font-semibold text-indigo-600 hover:underline dark:text-indigo-400"
+                  className="text-sm font-semibold text-zinc-900 hover:underline dark:text-zinc-100"
                 >
                   Lihat Status →
                 </Link>
@@ -111,7 +111,7 @@ export default function PeminjamanPage() {
 
           <Link
             href="/kamera"
-            className="mt-5 inline-block rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white"
+            className="mt-5 inline-block rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
           >
             Lihat Katalog Alat
           </Link>

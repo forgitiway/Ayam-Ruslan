@@ -248,7 +248,7 @@ export default function AjukanPeminjamanPage() {
           onClick={() =>
             router.push("/kamera")
           }
-          className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500"
+          className="rounded-xl bg-black px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
         >
           Kembali ke Katalog
         </button>
@@ -284,7 +284,7 @@ export default function AjukanPeminjamanPage() {
           Terjadi Kesalahan
         </h1>
 
-        <p className="text-sm text-red-500">
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
           {error}
         </p>
 
@@ -292,7 +292,7 @@ export default function AjukanPeminjamanPage() {
           onClick={() =>
             router.push("/kamera")
           }
-          className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500"
+          className="rounded-xl bg-black px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
         >
           Kembali ke Katalog
         </button>
@@ -304,7 +304,7 @@ export default function AjukanPeminjamanPage() {
     <div className="mx-auto max-w-2xl px-6 py-12">
       <button
         onClick={() => router.back()}
-        className="mb-6 text-sm text-indigo-600 hover:underline"
+        className="mb-6 text-sm font-medium text-zinc-900 hover:underline dark:text-zinc-100"
       >
         ← Kembali
       </button>
@@ -326,7 +326,7 @@ export default function AjukanPeminjamanPage() {
         {/* USER */}
         {user && (
           <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">
+            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
               Akun Peminjam
             </p>
 
@@ -343,7 +343,7 @@ export default function AjukanPeminjamanPage() {
         {/* ALAT */}
         {equipment && (
           <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">
+            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
               Alat yang Dipilih
             </p>
 
@@ -380,7 +380,7 @@ export default function AjukanPeminjamanPage() {
                   event.target.value
                 )
               }
-              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-zinc-800"
+              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
             />
           </div>
 
@@ -398,7 +398,7 @@ export default function AjukanPeminjamanPage() {
                   event.target.value
                 )
               }
-              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-zinc-800"
+              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
             />
           </div>
 
@@ -417,7 +417,7 @@ export default function AjukanPeminjamanPage() {
                   event.target.value
                 )
               }
-              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-zinc-800"
+              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
             />
           </div>
 
@@ -436,20 +436,20 @@ export default function AjukanPeminjamanPage() {
               }
               placeholder="Contoh: Untuk dokumentasi acara kampus"
               rows={4}
-              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-zinc-800"
+              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
             />
           </div>
 
           {/* ERROR */}
           {error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+            <div className="rounded-xl border border-zinc-300 bg-zinc-100 p-3 text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-100">
               {error}
             </div>
           )}
 
           {/* SUCCESS */}
           {success && (
-            <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-600">
+            <div className="rounded-xl border border-zinc-300 bg-zinc-100 p-3 text-sm font-medium text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">
               {success}
             </div>
           )}
@@ -458,7 +458,7 @@ export default function AjukanPeminjamanPage() {
           <button
             type="submit"
             disabled={loadingSubmit}
-            className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-xl bg-black py-3 font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
           >
             {loadingSubmit
               ? "Mengirim Pengajuan..."

@@ -17,7 +17,7 @@ export default async function KatalogPage() {
           Katalog Alat Multimedia
         </h1>
 
-        <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-5 text-red-700">
+        <div className="mt-6 rounded-xl border border-zinc-300 bg-zinc-100 p-5 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
           <p className="font-semibold">Gagal mengambil data alat</p>
           <p className="mt-1 text-sm">{error.message}</p>
         </div>
@@ -38,8 +38,8 @@ export default async function KatalogPage() {
       </div>
 
       {dataKamera.length === 0 ? (
-        <div className="rounded-xl border border-zinc-200 p-6 text-center">
-          <p className="text-zinc-500">
+        <div className="rounded-xl border border-zinc-200 p-6 text-center dark:border-zinc-800">
+          <p className="text-zinc-500 dark:text-zinc-400">
             Belum ada alat multimedia tersedia.
           </p>
         </div>
@@ -66,11 +66,11 @@ export default async function KatalogPage() {
                 </div>
 
                 <div className="mt-4 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                  <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                     {item.category}
                   </span>
 
-                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                  <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     Stok: {item.stock}
                   </span>
                 </div>
@@ -86,7 +86,7 @@ export default async function KatalogPage() {
 
               <Link
                 href={`/kamera/${item.id}`}
-                className="mt-4 block text-center rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500"
+                className="mt-4 block text-center rounded-xl bg-black py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
               >
                 Lihat Detail & Sewa
               </Link>

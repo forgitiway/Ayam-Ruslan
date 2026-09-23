@@ -74,7 +74,7 @@ export default function LoginPage() {
 
         {/* JUDUL */}
         <div className="text-center">
-          <h1 className="text-3xl font-black text-indigo-600 dark:text-indigo-400">
+          <h1 className="text-3xl font-black text-zinc-900 dark:text-white">
             CamSpace
           </h1>
 
@@ -100,7 +100,7 @@ export default function LoginPage() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="nama@email.com"
-              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-zinc-800"
+              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
             />
           </div>
 
@@ -115,13 +115,13 @@ export default function LoginPage() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="••••••••"
-              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-zinc-800"
+              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
             />
           </div>
 
           {/* ERROR */}
           {error && (
-            <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-600">
+            <div className="rounded-xl border border-zinc-300 bg-zinc-100 p-3 text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-100">
               {error}
             </div>
           )}
@@ -130,7 +130,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-xl bg-black py-3 font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
           >
             {loading ? "Memproses..." : "Masuk"}
           </button>
@@ -141,7 +141,7 @@ export default function LoginPage() {
           Belum punya akun?{" "}
           <Link
             href="/register"
-            className="text-indigo-600 hover:underline"
+            className="font-medium text-zinc-900 underline dark:text-zinc-100"
           >
             Daftar
           </Link>
