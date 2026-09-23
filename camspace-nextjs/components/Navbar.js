@@ -147,6 +147,16 @@ export default function Navbar() {
                 >
                   Dashboard
                 </Link>
+
+                {/* KHUSUS ADMIN */}
+                {user?.role === "admin" && (
+                  <Link
+                    href="/admin/approval"
+                    className="font-bold text-indigo-600 hover:text-indigo-500"
+                  >
+                    Approval
+                  </Link>
+                )}
               </>
             )}
           </nav>

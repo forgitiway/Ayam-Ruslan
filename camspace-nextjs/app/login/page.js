@@ -26,6 +26,38 @@ export default function LoginPage() {
     try {
       setLoading(true);
 
+      // LOGIN ADMIN
+      if (
+        email === "admin@camspace.com" &&
+        password === "admin123"
+      ) {
+        const adminUser = {
+          user_id: 999,
+          name: "Admin CamSpace",
+          email: "admin@camspace.com",
+          role: "admin",
+        };
+
+        localStorage.setItem(
+          "camspace_current_user",
+          JSON.stringify(adminUser)
+        );
+
+        localStorage.setItem(
+          "camspace_token",
+          "admin-token"
+        );
+
+        // Beri tahu Navbar bahwa admin sudah login
+        window.dispatchEvent(new Event("camspace-login"));
+
+        // Masuk ke halaman approval
+        router.push("/admin/approval");
+
+        return;
+      }
+
+      // LOGIN USER BIASA
       const response = await apiFetch("/login", {
         method: "POST",
         body: {

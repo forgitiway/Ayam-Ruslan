@@ -169,6 +169,7 @@ export default function AjukanPeminjamanPage() {
         start_date: tanggalMulai,
         end_date: tanggalSelesai,
         quantity: Number(quantity),
+        keperluan: keperluan,
       };
 
       console.log(
@@ -205,6 +206,41 @@ export default function AjukanPeminjamanPage() {
         "HASIL PEMINJAMAN:",
         data
       );
+
+      // =========================
+      // SIMPAN PENGAJUAN
+      // UNTUK APPROVAL ADMIN
+      // =========================
+
+      const pengajuan = {
+        id: Date.now(),
+        user_id: user.user_id,
+        user_name: user.name,
+        equipment_id: Number(equipmentId),
+        equipment_name: equipment.name,
+        start_date: tanggalMulai,
+        end_date: tanggalSelesai,
+        quantity: Number(quantity),
+        keperluan: keperluan,
+        status: "pending",
+      };
+
+      const dataLama = JSON.parse(
+        localStorage.getItem(
+          "camspace_rentals"
+        ) || "[]"
+      );
+
+      dataLama.push(pengajuan);
+
+      localStorage.setItem(
+        "camspace_rentals",
+        JSON.stringify(dataLama)
+      );
+
+      // =========================
+      // BERHASIL
+      // =========================
 
       setSuccess(
         "Pengajuan peminjaman berhasil dikirim."
