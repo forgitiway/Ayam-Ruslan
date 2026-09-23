@@ -37,12 +37,12 @@ export default function DashboardPage() {
       {/* Ringkasan */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-          <p className="text-sm text-zinc-400">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
             Peminjaman Aktif
           </p>
 
-          <h2 className="mt-2 text-3xl font-black text-indigo-400">
+          <h2 className="mt-2 text-3xl font-black text-zinc-900 dark:text-zinc-100">
             1
           </h2>
 
@@ -51,12 +51,12 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-          <p className="text-sm text-zinc-400">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
             Menunggu Approval
           </p>
 
-          <h2 className="mt-2 text-3xl font-black text-amber-400">
+          <h2 className="mt-2 text-3xl font-black text-zinc-900 dark:text-zinc-100">
             1
           </h2>
 
@@ -65,12 +65,12 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-          <p className="text-sm text-zinc-400">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
             Peminjaman Selesai
           </p>
 
-          <h2 className="mt-2 text-3xl font-black text-emerald-400">
+          <h2 className="mt-2 text-3xl font-black text-zinc-900 dark:text-zinc-100">
             1
           </h2>
 
@@ -97,7 +97,7 @@ export default function DashboardPage() {
 
           <Link
             href="/status"
-            className="text-sm font-semibold text-indigo-400 hover:underline"
+            className="text-sm font-semibold text-zinc-900 hover:underline dark:text-zinc-100"
           >
             Lihat Semua →
           </Link>
@@ -106,7 +106,7 @@ export default function DashboardPage() {
         {peminjamanTerbaru.map((item) => (
           <div
             key={item.id}
-            className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5"
+            className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
           >
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
@@ -119,7 +119,7 @@ export default function DashboardPage() {
                   {item.alat}
                 </h3>
 
-                <p className="mt-1 text-sm text-zinc-400">
+                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                   {item.tanggal}
                 </p>
               </div>
@@ -129,8 +129,8 @@ export default function DashboardPage() {
                 <span
                   className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
                     item.status === "Disetujui"
-                      ? "bg-emerald-900/40 text-emerald-400"
-                      : "bg-amber-900/40 text-amber-400"
+                      ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
+                      : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
                   }`}
                 >
                   {item.status}
@@ -138,7 +138,7 @@ export default function DashboardPage() {
 
                 <Link
                   href="/status"
-                  className="text-sm font-semibold text-indigo-400 hover:underline"
+                  className="text-sm font-semibold text-zinc-900 hover:underline dark:text-zinc-100"
                 >
                   Detail
                 </Link>
@@ -152,19 +152,19 @@ export default function DashboardPage() {
       </div>
 
       {/* Aksi */}
-      <div className="rounded-2xl border border-indigo-500/20 bg-indigo-950/20 p-6">
+      <div className="rounded-2xl border border-zinc-200 bg-zinc-100 p-6 dark:border-zinc-800 dark:bg-zinc-900">
 
         <h2 className="text-lg font-bold">
           Butuh alat untuk kebutuhanmu?
         </h2>
 
-        <p className="mt-1 text-sm text-zinc-400">
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
           Cari kamera dan peralatan content creation yang tersedia.
         </p>
 
         <Link
           href="/kamera"
-          className="mt-4 inline-block rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-500"
+          className="mt-4 inline-block rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
         >
           Lihat Katalog Alat
         </Link>

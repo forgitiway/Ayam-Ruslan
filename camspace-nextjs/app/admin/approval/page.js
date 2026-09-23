@@ -33,128 +33,24 @@ export default function ApprovalPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6">
-      <div className="mx-auto max-w-6xl">
-        <h1 className="mb-2 text-2xl font-bold">
-          Approval Peminjaman
-        </h1>
-
-        <p className="mb-6 text-gray-600">
-          Kelola pengajuan peminjaman kamera dari pengguna.
-        </p>
-
-        {pengajuan.length === 0 ? (
-          <div className="rounded-lg bg-white p-6 shadow">
-            <p className="text-gray-500">
-              Belum ada pengajuan peminjaman.
-            </p>
+    <div className="mx-auto max-w-4xl px-6 py-12 space-y-6">
+      <h1 className="text-3xl font-black">Admin Approval Panel</h1>
+      <div className="space-y-4">
+        {pengajuan.map((p) => (
+          <div key={p.id} className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 flex justify-between items-center">
+            <div>
+              <span className="text-xs font-bold text-indigo-600">{p.id} • Pemohon: {p.pemohon}</span>
+              <h3 className="text-lg font-bold">{p.alat}</h3>
+              <p className="text-xs text-zinc-500">{p.jadwal}</p>
+            </div>
+              <p className="text-xs italic text-zinc-600 mt-1">{p.alasan}</p>
+            <div className="flex gap-2">
+              <button className="rounded-xl bg-rose-100 px-4 py-2 text-xs font-bold text-rose-700 hover:bg-rose-200">Tolak</button>
+              <button className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-500">Setujui</button>
+            </div>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {pengajuan.map((item) => (
-              <div
-                key={item.id}
-                className="rounded-lg bg-white p-5 shadow"
-              >
-                <div className="grid gap-3 md:grid-cols-2">
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      Peminjam
-                    </p>
-                    <p className="font-semibold">
-                      {item.user_name}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      ID Alat
-                    </p>
-                    <p className="font-semibold">
-                      {item.equipment_id}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      Tanggal Mulai
-                    </p>
-                    <p>{item.start_date}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      Tanggal Selesai
-                    </p>
-                    <p>{item.end_date}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      Jumlah
-                    </p>
-                    <p>{item.quantity}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      Keperluan
-                    </p>
-                    <p>{item.keperluan || "-"}</p>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex items-center justify-between border-t pt-4">
-                  <div>
-                    <span className="text-sm font-medium">
-                      Status:
-                    </span>{" "}
-                    <span
-                      className={
-                        item.status === "approved"
-                          ? "font-semibold text-green-600"
-                          : item.status === "rejected"
-                          ? "font-semibold text-red-600"
-                          : "font-semibold text-yellow-600"
-                      }
-                    >
-                      {item.status.toUpperCase()}
-                    </span>
-                  </div>
-
-                  {item.status === "pending" && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() =>
-                          updateStatus(
-                            item.id,
-                            "approved"
-                          )
-                        }
-                        className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-                      >
-                        Setujui
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          updateStatus(
-                            item.id,
-                            "rejected"
-                          )
-                        }
-                        className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-                      >
-                        Tolak
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        ))}
       </div>
-    </main>
+    </div>
   );
 }

@@ -96,14 +96,14 @@ export default function Navbar() {
     "Pengguna";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-zinc-200/80 bg-white/80 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/80">
+    <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-black">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
 
         {/* LOGO + NAVIGASI */}
         <div className="flex items-center gap-8">
           <Link
             href="/"
-            className="text-2xl font-black tracking-tight text-indigo-600 dark:text-indigo-400"
+            className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white"
           >
             CamSpace
           </Link>
@@ -179,7 +179,7 @@ export default function Navbar() {
               <button
                 onClick={handleLogout}
                 disabled={loggingOut}
-                className="rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-xl bg-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
               >
                 {loggingOut ? "Keluar..." : "Logout"}
               </button>
@@ -191,14 +191,14 @@ export default function Navbar() {
             <>
               <Link
                 href="/login"
-                className="rounded-xl px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                className="rounded-xl px-4 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-900"
               >
                 Masuk
               </Link>
 
               <Link
                 href="/register"
-                className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500 shadow-md shadow-indigo-500/20"
+                className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
               >
                 Daftar
               </Link>

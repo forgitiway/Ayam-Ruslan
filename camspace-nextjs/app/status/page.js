@@ -156,42 +156,42 @@ export default function StatusPage() {
         return {
           text: "Menunggu Persetujuan",
           className:
-            "bg-yellow-100 text-yellow-700",
+            "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
         };
 
       case "approved":
         return {
           text: "Disetujui",
           className:
-            "bg-green-100 text-green-700",
+            "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900",
         };
 
       case "rejected":
         return {
           text: "Ditolak",
           className:
-            "bg-red-100 text-red-700",
+            "bg-zinc-200 text-zinc-600 line-through dark:bg-zinc-800 dark:text-zinc-400",
         };
 
       case "ongoing":
         return {
           text: "Sedang Dipinjam",
           className:
-            "bg-blue-100 text-blue-700",
+            "bg-zinc-800 text-zinc-100 dark:bg-zinc-200 dark:text-zinc-900",
         };
 
       case "completed":
         return {
           text: "Selesai",
           className:
-            "bg-zinc-100 text-zinc-700",
+            "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
         };
 
       default:
         return {
           text: status || "Tidak diketahui",
           className:
-            "bg-zinc-100 text-zinc-700",
+            "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
         };
     }
   }
@@ -222,12 +222,12 @@ export default function StatusPage() {
 
       {/* ERROR */}
       {!loading && error && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-red-700">
+        <div className="rounded-2xl border border-zinc-300 bg-zinc-100 p-5 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-100">
           <p className="font-semibold">
             Gagal mengambil data peminjaman
           </p>
 
-          <p className="mt-1 text-sm">
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
             {error}
           </p>
         </div>
@@ -252,7 +252,7 @@ export default function StatusPage() {
               onClick={() =>
                 router.push("/kamera")
               }
-              className="mt-5 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500"
+              className="mt-5 rounded-xl bg-black px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
             >
               Lihat Katalog Alat
             </button>
@@ -281,7 +281,7 @@ export default function StatusPage() {
                   <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
 
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                         Peminjaman #{rental.id}
                       </p>
 
