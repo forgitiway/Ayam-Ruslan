@@ -12,22 +12,12 @@ export default function StatusPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function loadRentals() {
+    function loadRentals() {
       try {
         setLoading(true);
         setError("");
 
-        const token =
-          localStorage.getItem("camspace_token");
-
-        console.log(
-          "TOKEN STATUS ADA:",
-          !!token
-        );
-
-        // ==============================
-        // CEK LOGIN
-        // ==============================
+        const token = localStorage.getItem("camspace_token");
 
         if (!token) {
           router.replace("/login");
@@ -35,78 +25,71 @@ export default function StatusPage() {
         }
 
         // ==============================
-        // AMBIL DATA USER
+        // CEK USER LOGIN
         // ==============================
 
-        const userResponse = await apiFetch("/me", {
-          method: "GET",
-          token: token,
-        });
-
-        console.log(
-          "USER STATUS:",
-          userResponse
+        const currentUser = localStorage.getItem(
+          "camspace_current_user"
         );
 
-        const userId =
-          userResponse.data?.user_id;
+        let userId = null;
+
+        // Jika ADMIN
+        if (currentUser) {
+          const user = JSON.parse(currentUser);
+
+          if (user.role === "admin") {
+            userId = user.user_id;
+          }
+        }
+
+        // ==============================
+        // AMBIL USER ID USER BIASA
+        // ==============================
 
         if (!userId) {
-          throw new Error(
-            "ID pengguna tidak ditemukan."
+          // Untuk user biasa, ID pengguna
+          // diambil dari data yang tersimpan
+          // saat login.
+          const savedUser = localStorage.getItem(
+            "camspace_current_user"
           );
-        }
 
-        console.log(
-          "USER ID:",
-          userId
-        );
-
-        // ==============================
-        // AMBIL SEMUA DATA RENTAL
-        // MELALUI API LOKAL
-        // ==============================
-
-        const rentalResponse = await fetch(
-          "/api/rentals",
-          {
-            method: "GET",
+          if (savedUser) {
+            const user = JSON.parse(savedUser);
+            userId = user.user_id;
           }
-        );
-
-        const rentalData =
-          await rentalResponse.json();
-
-        console.log(
-          "DATA RENTALS:",
-          rentalData
-        );
-
-        if (!rentalResponse.ok) {
-          throw new Error(
-            rentalData.message ||
-              "Gagal mengambil data peminjaman."
-          );
         }
 
-        const data =
-          rentalData.data || rentalData;
+        // ==============================
+        // AMBIL DATA RENTAL
+        // DARI LOCAL STORAGE
+        // ==============================
 
-        if (!Array.isArray(data)) {
+        const rentalData = JSON.parse(
+          localStorage.getItem("camspace_rentals") || "[]"
+        );
+
+        console.log("DATA RENTALS LOCAL:", rentalData);
+
+        if (!Array.isArray(rentalData)) {
           throw new Error(
             "Format data peminjaman tidak sesuai."
           );
         }
 
         // ==============================
-        // FILTER BERDASARKAN USER LOGIN
+        // FILTER BERDASARKAN USER
         // ==============================
 
-        const userRentals = data.filter(
-          (rental) =>
-            Number(rental.user_id) ===
-            Number(userId)
-        );
+        let userRentals = rentalData;
+
+        if (userId) {
+          userRentals = rentalData.filter(
+            (rental) =>
+              Number(rental.user_id) === Number(userId)
+          );
+        }
 
         console.log(
           "PEMINJAMAN USER:",

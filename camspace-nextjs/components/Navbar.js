@@ -141,31 +141,35 @@ export default function Navbar() {
               Katalog Alat
             </Link>
 
-            {/* MENU KHUSUS USER YANG SUDAH LOGIN */}
             {!loading && user && (
               <>
-                <Link
-                  href="/peminjaman"
-                  className="hover:text-zinc-900 dark:hover:text-zinc-100"
-                >
-                  Riwayat
-                </Link>
+                {/* MENU USER */}
+                {user?.role !== "admin" && (
+                  <>
+                    <Link
+                      href="/peminjaman"
+                      className="hover:text-zinc-900 dark:hover:text-zinc-100"
+                    >
+                      Riwayat
+                    </Link>
 
-                <Link
-                  href="/status"
-                  className="hover:text-zinc-900 dark:hover:text-zinc-100"
-                >
-                  Status
-                </Link>
+                    <Link
+                      href="/status"
+                      className="hover:text-zinc-900 dark:hover:text-zinc-100"
+                    >
+                      Status
+                    </Link>
 
-                <Link
-                  href="/dashboard"
-                  className="hover:text-zinc-900 dark:hover:text-zinc-100"
-                >
-                  Dashboard
-                </Link>
+                    <Link
+                      href="/dashboard"
+                      className="hover:text-zinc-900 dark:hover:text-zinc-100"
+                    >
+                      Dashboard
+                    </Link>
+                  </>
+                )}
 
-                {/* KHUSUS ADMIN */}
+                {/* MENU ADMIN */}
                 {user?.role === "admin" && (
                   <Link
                     href="/admin/approval"
