@@ -1,6 +1,9 @@
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 const PROJECT = process.env.NEXT_PUBLIC_PROJECT_ID;
 const KEY = process.env.NEXT_PUBLIC_API_KEY;
+console.log("BASE =", BASE);
+console.log("PROJECT =", PROJECT);
+console.log("KEY =", KEY);
 
 /**
  * @param {string} path
@@ -42,14 +45,14 @@ export async function apiFetch(
     headers["Content-Type"] = "application/json";
   }
 
-  const res = await fetch(
-    BASE + "/" + PROJECT + path + suffix,
-    {
-      method: verb,
-      headers,
-      body: body ? JSON.stringify(body) : undefined,
-    }
-  );
+const url = BASE + "/" + PROJECT + path + suffix;
+console.log("FETCH URL:", url);
+
+const res = await fetch(url, {
+  method: verb,
+  headers,
+  body: body ? JSON.stringify(body) : undefined,
+});
 
   const text = await res.text();
 

@@ -21,6 +21,74 @@ const gambarAlat: Record<number, string> = {
   3: "/images/tripod-manfrotto.jpg",
 };
 
+const extraEquipment: Equipment[] = [
+  {
+    id: 101,
+    name: "GoPro Hero 11 Black",
+    category: "KAMERA",
+    brand: "GoPro",
+    description: null,
+    price_per_day: 100000,
+    stock: 4,
+    image_url: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&q=80",
+    specifications: null,
+    status: "available",
+    created_at: "",
+  },
+  {
+    id: 102,
+    name: "Lensa Canon 50mm f/1.8",
+    category: "LENSA",
+    brand: "Canon",
+    description: null,
+    price_per_day: 75000,
+    stock: 5,
+    image_url: "https://images.unsplash.com/photo-1516724562728-afc824a36e84?w=800&q=80",
+    specifications: null,
+    status: "available",
+    created_at: "",
+  },
+  {
+    id: 103,
+    name: "Sony FE 16-35mm f/2.8 GM",
+    category: "LENSA",
+    brand: "Sony",
+    description: null,
+    price_per_day: 120000,
+    stock: 3,
+    image_url: "https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?w=800&q=80",
+    specifications: null,
+    status: "available",
+    created_at: "",
+  },
+  {
+    id: 104,
+    name: "Drone DJI Mini 3",
+    category: "AKSESORIS",
+    brand: "DJI",
+    description: null,
+    price_per_day: 200000,
+    stock: 2,
+    image_url: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&q=80",
+    specifications: null,
+    status: "available",
+    created_at: "",
+  },
+  {
+    id: 105,
+    name: "Mic Rode VideoMic GO",
+    category: "AKSESORIS",
+    brand: "Rode",
+    description: null,
+    price_per_day: 50000,
+    stock: 6,
+    image_url: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&q=80",
+    specifications: null,
+    status: "available",
+    created_at: "",
+  },
+];
+
 export default async function Home() {
   let dataKamera: Equipment[] = [];
 
@@ -30,9 +98,11 @@ export default async function Home() {
       token: process.env.NEXT_PUBLIC_DEV_TOKEN,
     });
 
-    dataKamera = Array.isArray(response)
-      ? response
-      : response.data || [];
+const apiData = Array.isArray(response)
+  ? response
+  : response.data || [];
+
+dataKamera = [...apiData, ...extraEquipment];
   } catch (error) {
     console.error("Gagal mengambil data alat:", error);
   }
@@ -133,7 +203,7 @@ export default async function Home() {
           /* PRODUCT GRID */
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
 
-            {dataKamera.slice(0, 3).map((item) => (
+            {dataKamera.map((item) => (
 
               <div
                 key={item.id}
