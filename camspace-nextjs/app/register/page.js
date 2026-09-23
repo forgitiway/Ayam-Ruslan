@@ -59,7 +59,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-md space-y-6">
 
         <div className="text-center">
-          <h1 className="text-3xl font-black text-indigo-600 dark:text-indigo-400">
+          <h1 className="text-3xl font-black text-zinc-900 dark:text-white">
             CamSpace
           </h1>
 
@@ -71,13 +71,13 @@ export default function RegisterPage() {
         <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
 
           {error && (
-            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <div className="mb-4 rounded-xl border border-zinc-300 bg-zinc-100 p-4 text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-100">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="mb-4 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+            <div className="mb-4 rounded-xl border border-zinc-300 bg-zinc-100 p-4 text-sm font-medium text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">
               Akun berhasil dibuat. Mengarahkan ke halaman login...
             </div>
           )}
@@ -98,7 +98,7 @@ export default function RegisterPage() {
                   setNama(event.target.value)
                 }
                 placeholder="Nama Anda"
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-zinc-800"
+                className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
                 required
               />
             </div>
@@ -115,7 +115,7 @@ export default function RegisterPage() {
                   setEmail(event.target.value)
                 }
                 placeholder="nama@email.com"
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-zinc-800"
+                className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
                 required
               />
             </div>
@@ -132,7 +132,7 @@ export default function RegisterPage() {
                   setPhone(event.target.value)
                 }
                 placeholder="08xxxxxxxxxx"
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-zinc-800"
+                className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
               />
             </div>
 
@@ -148,7 +148,7 @@ export default function RegisterPage() {
                   setPassword(event.target.value)
                 }
                 placeholder="Buat password"
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-zinc-800"
+                className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
                 required
               />
             </div>
@@ -156,7 +156,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-xl bg-black py-3 font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
             >
               {loading
                 ? "Membuat Akun..."
@@ -169,7 +169,7 @@ export default function RegisterPage() {
           Sudah punya akun?{" "}
           <a
             href="/login"
-            className="text-indigo-600 hover:underline"
+            className="font-medium text-zinc-900 underline dark:text-zinc-100"
           >
             Masuk
           </a>

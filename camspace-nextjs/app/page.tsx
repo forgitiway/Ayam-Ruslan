@@ -38,13 +38,13 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+    <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900 dark:bg-black dark:text-zinc-100">
 
       {/* HERO */}
-      <section className="relative overflow-hidden bg-linear-to-b from-indigo-900 via-indigo-950 to-zinc-950 px-6 py-20 text-white">
+      <section className="relative overflow-hidden bg-black px-6 py-20 text-white">
         <div className="mx-auto max-w-5xl text-center space-y-6">
 
-          <span className="inline-block rounded-full bg-indigo-500/20 px-4 py-1.5 text-xs font-semibold text-indigo-300 border border-indigo-500/30">
+          <span className="inline-block rounded-full bg-zinc-900 px-4 py-1.5 text-xs font-semibold text-zinc-300 border border-zinc-800">
             Platform Sewa Alat Konten & Fotografi
           </span>
 
@@ -52,12 +52,12 @@ export default async function Home() {
             Let&apos;s Create Beautiful Work
             <br className="hidden sm:block" />
 
-            <span className="bg-linear-to-r from-indigo-400 to-indigo-200 bg-clip-text text-transparent">
+            <span className="text-zinc-400">
               Together with CamSpace
             </span>
           </h1>
 
-          <p className="mx-auto max-w-2xl text-base sm:text-lg text-zinc-300">
+          <p className="mx-auto max-w-2xl text-base sm:text-lg text-zinc-400">
             Sewa kamera DSLR, Mirrorless, Digicam, Lensa, Lighting, dan
             Tripod untuk keperluan tugas, pembuatan konten, hingga dokumentasi
             acara.
@@ -65,17 +65,17 @@ export default async function Home() {
 
           {/* SEARCH */}
           <div className="mx-auto max-w-xl pt-4">
-            <div className="flex flex-col sm:flex-row gap-2 rounded-2xl bg-white/10 p-2 backdrop-blur-md border border-white/15">
+            <div className="flex flex-col sm:flex-row gap-2 rounded-2xl bg-zinc-900 p-2 border border-zinc-800">
 
               <input
                 type="text"
                 placeholder="Cari kamera, lensa, atau lighting..."
-                className="w-full bg-transparent px-4 py-3 text-sm text-white placeholder-zinc-400 outline-none"
+                className="w-full bg-transparent px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none"
               />
 
               <Link
                 href="/kamera"
-                className="rounded-xl bg-indigo-600 px-6 py-3 text-center text-sm font-medium text-white transition hover:bg-indigo-500"
+                className="rounded-xl bg-white px-6 py-3 text-center text-sm font-semibold text-black transition hover:bg-zinc-200"
               >
                 Cari Alat
               </Link>
@@ -103,7 +103,7 @@ export default async function Home() {
 
           <Link
             href="/kamera"
-            className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+            className="text-sm font-semibold text-zinc-900 hover:underline dark:text-zinc-100"
           >
             Lihat Semua →
           </Link>
@@ -121,7 +121,7 @@ export default async function Home() {
 
             <Link
               href="/kamera"
-              className="mt-4 inline-block rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500"
+              className="mt-4 inline-block rounded-xl bg-black px-5 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
             >
               Lihat Katalog
             </Link>
@@ -137,7 +137,7 @@ export default async function Home() {
 
               <div
                 key={item.id}
-                className="rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 flex flex-col justify-between"
+                className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 flex flex-col justify-between"
               >
 
                 <div>
@@ -166,11 +166,11 @@ export default async function Home() {
                   {/* CATEGORY + STOCK */}
                   <div className="mt-4 flex items-center justify-between">
 
-                    <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                    <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                       {item.category}
                     </span>
 
-                    <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                    <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                       Stok: {item.stock}
                     </span>
 
@@ -193,7 +193,7 @@ export default async function Home() {
                 {/* DETAIL BUTTON */}
                 <Link
                   href={`/kamera/${item.id}`}
-                  className="mt-4 block text-center rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500"
+                  className="mt-4 block text-center rounded-xl bg-black py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
                 >
                   Lihat Detail & Sewa
                 </Link>

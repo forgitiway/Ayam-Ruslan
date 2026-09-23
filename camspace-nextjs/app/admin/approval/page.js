@@ -11,14 +11,14 @@ export default function AdminApprovalPage() {
         {pengajuan.map((p) => (
           <div key={p.id} className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 flex justify-between items-center">
             <div>
-              <span className="text-xs font-bold text-indigo-600">{p.id} • Pemohon: {p.pemohon}</span>
+              <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">{p.id} • Pemohon: {p.pemohon}</span>
               <h3 className="text-lg font-bold">{p.alat}</h3>
               <p className="text-xs text-zinc-500">{p.jadwal}</p>
             </div>
-              <p className="text-xs italic text-zinc-600 mt-1">{p.alasan}</p>
+              <p className="text-xs italic text-zinc-600 dark:text-zinc-400 mt-1">{p.alasan}</p>
             <div className="flex gap-2">
-              <button className="rounded-xl bg-rose-100 px-4 py-2 text-xs font-bold text-rose-700 hover:bg-rose-200">Tolak</button>
-              <button className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-500">Setujui</button>
+              <button className="rounded-xl bg-zinc-100 px-4 py-2 text-xs font-bold text-zinc-800 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700">Tolak</button>
+              <button className="rounded-xl bg-black px-4 py-2 text-xs font-bold text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200">Setujui</button>
             </div>
           </div>
         ))}
