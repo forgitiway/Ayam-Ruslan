@@ -23,6 +23,22 @@ export default function Navbar() {
           return;
         }
 
+        // CEK ADMIN LOCAL
+        const currentUser = localStorage.getItem(
+          "camspace_current_user"
+        );
+
+        if (currentUser) {
+          const userData = JSON.parse(currentUser);
+
+          if (userData.role === "admin") {
+            setUser(userData);
+            setLoading(false);
+            return;
+          }
+        }
+
+        // LOGIN USER BIASA
         const response = await apiFetch("/me", {
           method: "GET",
           token: token,
@@ -77,6 +93,7 @@ export default function Navbar() {
 
       // Hapus token dari browser
       localStorage.removeItem("camspace_token");
+      localStorage.removeItem("camspace_current_user");
 
       // Hapus data user dari Navbar
       setUser(null);
