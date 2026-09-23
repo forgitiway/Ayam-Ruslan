@@ -141,13 +141,6 @@ export default function ApprovalPage() {
               dari pengguna.
             </p>
           </div>
-
-          <button
-            onClick={handleLogout}
-            className="rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
-          >
-            Keluar
-          </button>
         </div>
 
         {/* =========================
