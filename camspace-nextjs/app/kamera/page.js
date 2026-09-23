@@ -82,7 +82,7 @@ const apiData = Array.isArray(response.data)
   ? response.data
   : Array.isArray(response)
   ? response
-  : [];
+  : [];     
 
 dataKamera = apiData.concat(extraEquipment);
 
