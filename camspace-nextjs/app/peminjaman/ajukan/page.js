@@ -26,99 +26,88 @@ export default function AjukanPeminjamanPage() {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("camspace_token");
+  const token = localStorage.getItem("camspace_token");
 
-    // Belum login
-    if (!token) {
-      router.replace("/login");
-      return;
-    }
+  // Belum login
+  if (!token) {
+    router.replace("/login");
+    return;
+  }
 
-    // Tidak ada ID alat
-    if (!equipmentId) {
-      setLoadingEquipment(false);
-      return;
-    }
+  // Tidak ada ID alat
+  if (!equipmentId) {
+    return;
+  }
 
-    async function loadData() {
-      try {
-        setError("");
+  async function loadData() {
+    try {
+      setError("");
 
-        // =========================
-        // 1. AMBIL DATA USER
-        // =========================
+      // =========================
+      // 1. AMBIL DATA USER
+      // =========================
 
-        const userResponse = await apiFetch("/me", {
-          method: "GET",
-          token: token,
-        });
+      const userResponse = await apiFetch("/me", {
+        method: "GET",
+        token: token,
+      });
 
-        console.log("DATA USER PEMINJAMAN:", userResponse);
+      console.log("DATA USER PEMINJAMAN:", userResponse);
 
-        const userData = userResponse.data;
+      const userData = userResponse.data;
 
-        if (!userData || !userData.user_id) {
-          throw new Error(
-            "Data user tidak ditemukan."
-          );
-        }
-
-        setUser(userData);
-
-        // =========================
-        // 2. AMBIL DATA ALAT
-        // =========================
-
-        const equipmentResponse = await fetch(
-          "/api/equipment"
-        );
-
-        const equipmentData =
-          await equipmentResponse.json();
-
-        if (!equipmentResponse.ok) {
-          throw new Error(
-            equipmentData.message ||
-              "Gagal mengambil data alat."
-          );
-        }
-
-        const equipmentList =
-          equipmentData.data || equipmentData;
-
-        const selectedEquipment =
-          equipmentList.find(
-            (item) =>
-              String(item.id) ===
-              String(equipmentId)
-          );
-
-        if (!selectedEquipment) {
-          throw new Error(
-            "Alat tidak ditemukan."
-          );
-        }
-
-        setEquipment(selectedEquipment);
-      } catch (error) {
-        console.error(
-          "ERROR LOAD PEMINJAMAN:",
-          error
-        );
-
-        setError(
-          error.message ||
-            "Gagal mengambil data."
-        );
-      } finally {
-        setLoadingUser(false);
-        setLoadingEquipment(false);
+      if (!userData || !userData.user_id) {
+        throw new Error("Data user tidak ditemukan.");
       }
+
+      setUser(userData);
+
+      // =========================
+      // 2. AMBIL DATA ALAT
+      // =========================
+
+      const equipmentResponse = await fetch("/api/equipment");
+
+      const equipmentData = await equipmentResponse.json();
+
+      if (!equipmentResponse.ok) {
+        throw new Error(
+          equipmentData.message ||
+            "Gagal mengambil data alat."
+        );
+      }
+
+      const equipmentList =
+        equipmentData.data || equipmentData;
+
+      const selectedEquipment = equipmentList.find(
+        (item) =>
+          String(item.id) === String(equipmentId)
+      );
+
+      if (!selectedEquipment) {
+        throw new Error("Alat tidak ditemukan.");
+      }
+
+      setEquipment(selectedEquipment);
+    } catch (error) {
+      console.error(
+        "ERROR LOAD PEMINJAMAN:",
+        error
+      );
+
+      setError(
+        error.message ||
+          "Gagal mengambil data."
+      );
+    } finally {
+      setLoadingUser(false);
+      setLoadingEquipment(false);
     }
+  }
 
-    loadData();
-  }, [equipmentId, router]);
-
+  loadData();
+}, [equipmentId, router]);
   async function handleSubmit(event) {
     event.preventDefault();
 
