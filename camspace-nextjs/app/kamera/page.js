@@ -1,178 +1,219 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 
-const imageMap = {
-  "Sony A7III":
-    "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
-  "Canon EOS R6":
-    "https://images.unsplash.com/photo-1617005082133-548c4dd27f35?w=800&q=80",
-  "Tripod Manfrotto":
-    "https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=800&q=80",
-  "GoPro Hero 11 Black":
-    "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&q=80",
-  "Lensa Canon 50mm f/1.8":
-    "https://images.unsplash.com/photo-1516724562728-afc824a36e84?w=800&q=80",
-  "Sony FE 16-35mm f/2.8 GM":
-    "https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?w=800&q=80",
-  "Drone DJI Mini 3":
-    "https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&q=80",
-  "Mic Rode VideoMic GO":
-    "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&q=80",
-};
+export default function KatalogPage() {
+  const [dataKamera, setDataKamera] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
-const getImage = (item) =>
-  item.image_url || imageMap[item.name] || "/images/no-image.png";
+  // =========================
+  // AMBIL DATA ALAT
+  // =========================
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        setErrorMessage("");
 
-export default async function KatalogPage({ searchParams }) {
-  const params = await searchParams;
-  const kategori = params?.kategori || "SEMUA";
+        // Cek user yang sedang login
+        const currentUser = localStorage.getItem(
+          "camspace_current_user"
+        );
 
-  let dataKamera = [];
+        if (currentUser) {
+          const userData = JSON.parse(currentUser);
+          setIsAdmin(userData.role === "admin");
+        }
 
-  try {
-    const response = await apiFetch("/equipment", {
-      token: process.env.NEXT_PUBLIC_DEV_TOKEN,
-    });
+        // Ambil data alat dari API
+        const response = await apiFetch("/equipment", {
+          token: process.env.NEXT_PUBLIC_DEV_TOKEN,
+        });
 
-    dataKamera = Array.isArray(response.data)
-      ? response.data
-      : Array.isArray(response)
-      ? response
-      : [];
-  } catch (error) {
+        const equipmentData = response.data || response;
+
+        setDataKamera(equipmentData);
+      } catch (error) {
+        console.error(
+          "Gagal mengambil data alat:",
+          error
+        );
+
+        setErrorMessage(
+          error.message || "Gagal mengambil data alat."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  // =========================
+  // HAPUS ALAT
+  // =========================
+  async function handleDelete(id, name) {
+    const confirmed = window.confirm(
+      `Apakah kamu yakin ingin menghapus "${name}"?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `/api/equipment/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Gagal menghapus alat."
+        );
+      }
+
+      // Hapus dari tampilan tanpa reload
+      setDataKamera((prev) =>
+        prev.filter((item) => item.id !== id)
+      );
+
+      alert("Alat berhasil dihapus.");
+    } catch (error) {
+      console.error(
+        "Gagal menghapus alat:",
+        error
+      );
+
+      alert(
+        error.message || "Gagal menghapus alat."
+      );
+    }
+  }
+
+  // =========================
+  // LOADING
+  // =========================
+  if (loading) {
     return (
-      <div className="mx-auto max-w-7xl px-6 py-12">
-        <h1 className="text-4xl font-black">Katalog Alat Multimedia</h1>
+      <div className="mx-auto max-w-6xl px-6 py-12">
+        <h1 className="text-3xl font-black tracking-tight">
+          Katalog Alat Multimedia
+        </h1>
 
-        <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-5 text-red-700">
-          <p className="font-semibold">Gagal mengambil data alat</p>
-          <p className="mt-1 text-sm">{error.message}</p>
+        <div className="mt-6 rounded-xl border border-zinc-200 p-6 dark:border-zinc-800">
+          <p className="text-zinc-500 dark:text-zinc-400">
+            Memuat data alat...
+          </p>
         </div>
       </div>
     );
   }
 
-  const filteredData =
-    kategori === "SEMUA"
-      ? dataKamera
-      : dataKamera.filter((item) => {
-          const cat = (item.category || "").toLowerCase();
-          const name = (item.name || "").toLowerCase();
-
-          switch (kategori) {
-            case "KAMERA":
-              return (
-                cat.includes("kamera") ||
-                cat.includes("camera") ||
-                cat.includes("mirrorless") ||
-                cat.includes("dslr") ||
-                name.includes("sony") ||
-                name.includes("canon") ||
-                name.includes("gopro")
-              );
-
-            case "LENSA":
-              return cat.includes("lensa") || cat.includes("lens");
-
-            case "TRIPOD":
-              return cat.includes("tripod") || name.includes("tripod");
-
-            case "AKSESORIS":
-              return (
-                cat.includes("aksesoris") ||
-                cat.includes("accessory") ||
-                name.includes("drone") ||
-                name.includes("mic") ||
-                name.includes("rode")
-              );
-
-            default:
-              return true;
-          }
-        });
-
-  const kategoriList = [
-    { label: "Semua", value: "SEMUA" },
-    { label: "Kamera", value: "KAMERA" },
-    { label: "Lensa", value: "LENSA" },
-    { label: "Tripod", value: "TRIPOD" },
-    { label: "Aksesoris", value: "AKSESORIS" },
-  ];
-
-  return (
-    <div className="mx-auto max-w-7xl px-6 py-12 space-y-8">
-      <div>
-        <h1 className="text-4xl font-black tracking-tight">
+  // =========================
+  // ERROR
+  // =========================
+  if (errorMessage) {
+    return (
+      <div className="mx-auto max-w-6xl px-6 py-12">
+        <h1 className="text-3xl font-black tracking-tight">
           Katalog Alat Multimedia
         </h1>
-        <p className="mt-2 text-zinc-500">
-          Pilih alat multimedia sesuai kebutuhan produksi kamu.
-        </p>
-      </div>
 
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <input
-          placeholder="Cari kamera, lensa, tripod..."
-          className="w-full max-w-xl rounded-full border border-zinc-200 px-5 py-3 text-sm outline-none focus:border-black"
-        />
+        <div className="mt-6 rounded-xl border border-zinc-300 bg-zinc-100 p-5 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
+          <p className="font-semibold">
+            Gagal mengambil data alat
+          </p>
 
-        <div className="flex flex-wrap gap-2">
-          {kategoriList.map((btn) => (
-            <Link
-              key={btn.value}
-              href={
-                btn.value === "SEMUA"
-                  ? "/kamera"
-                  : `/kamera?kategori=${btn.value}`
-              }
-              className={`rounded-full border px-4 py-2 text-sm transition ${
-                kategori === btn.value
-                  ? "bg-black text-white"
-                  : "bg-white hover:bg-zinc-100"
-              }`}
-            >
-              {btn.label}
-            </Link>
-          ))}
+          <p className="mt-1 text-sm">
+            {errorMessage}
+          </p>
         </div>
       </div>
+    );
+  }
 
-      {filteredData.length === 0 ? (
-        <div className="rounded-2xl border border-zinc-200 p-8 text-center">
-          <p className="text-zinc-500">
-            Tidak ada alat pada kategori ini.
+  return (
+    <div className="mx-auto max-w-6xl px-6 py-12 space-y-8">
+
+      {/* =========================
+          HEADER
+      ========================= */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight">
+            Katalog Alat Multimedia
+          </h1>
+
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Pilih alat multimedia sesuai kebutuhan produksi kamu.
+          </p>
+        </div>
+
+        {/* TOMBOL TAMBAH ADMIN */}
+        {isAdmin && (
+          <Link
+            href="/kamera/tambah"
+            className="rounded-xl bg-black px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+          >
+            + Tambah Alat
+          </Link>
+        )}
+      </div>
+
+      {/* =========================
+          DATA KOSONG
+      ========================= */}
+      {dataKamera.length === 0 ? (
+        <div className="rounded-2xl border border-zinc-200 p-8 text-center dark:border-zinc-800">
+          <p className="text-zinc-500 dark:text-zinc-400">
+            Belum ada alat multimedia tersedia.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {filteredData.map((item, index) => (
+        /* =========================
+           GRID KATALOG
+        ========================= */
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+
+          {dataKamera.map((item) => (
             <div
               key={item.id}
-              className="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
+              className="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
             >
-              <div className="relative h-52 overflow-hidden bg-zinc-100">
-                <img
-                  src={getImage(item)}
-                  alt={item.name}
-                  className="h-full w-full object-cover transition duration-300 hover:scale-105"
-                />
 
-                {index === 0 && (
-                  <span className="absolute left-3 top-3 rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-600">
-                    🔥 Populer
-                  </span>
-                )}
+              {/* =========================
+                  INFORMASI ALAT
+              ========================= */}
+              <div>
 
-                {index === filteredData.length - 2 && (
-                  <span className="absolute left-3 top-3 rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
-                    ⭐ Terlaris
-                  </span>
-                )}
-              </div>
+                {/* GAMBAR */}
+                <div className="h-44 w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+                  {item.image_url ? (
+                    <img
+                      src={item.image_url}
+                      alt={item.name}
+                      className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-zinc-400">
+                      Tidak ada gambar
+                    </div>
+                  )}
+                </div>
 
-              <div className="flex flex-col gap-3 p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                {/* KATEGORI & STOK */}
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                     {item.category}
                   </span>
 
@@ -181,21 +222,67 @@ export default async function KatalogPage({ searchParams }) {
                   </span>
                 </div>
 
-                <h3 className="text-xl font-bold">{item.name}</h3>
+                {/* NAMA ALAT */}
+                <h3 className="mt-1 text-lg font-bold">
+                  {item.name}
+                </h3>
 
-                <p className="text-zinc-500">
-                  Rp{Number(item.price_per_day).toLocaleString("id-ID")} / hari
+                {/* HARGA */}
+                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                  Rp
+                  {Number(
+                    item.price_per_day
+                  ).toLocaleString("id-ID")}{" "}
+                  / hari
                 </p>
+              </div>
 
+              {/* =========================
+                  TOMBOL USER
+              ========================= */}
+              {!isAdmin && (
                 <Link
                   href={`/kamera/${item.id}`}
-                  className="mt-2 rounded-xl bg-black py-3 text-center font-semibold text-white transition hover:bg-zinc-800"
+                  className="mt-4 block rounded-xl bg-black py-2.5 text-center text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
                 >
                   Lihat Detail & Sewa
                 </Link>
-              </div>
+              )}
+
+              {/* =========================
+                  TOMBOL ADMIN
+              ========================= */}
+              {isAdmin && (
+                <div className="mt-3 grid grid-cols-2 gap-2">
+
+                  {/* EDIT */}
+                  <Link
+                    href={`/kamera/${item.id}/edit`}
+                    className="rounded-lg border border-zinc-300 px-3 py-2 text-center text-xs font-semibold transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                  >
+                    Edit
+                  </Link>
+
+                  {/* HAPUS */}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleDelete(
+                        item.id,
+                        item.name
+                      )
+                    }
+                    className="rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-red-700"
+                  >
+                    Hapus
+                  </button>
+
+                </div>
+              )}
+
             </div>
           ))}
+
         </div>
       )}
     </div>

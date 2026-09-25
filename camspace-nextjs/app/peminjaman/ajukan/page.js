@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -26,131 +27,91 @@ export default function AjukanPeminjamanPage() {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
-  const token = localStorage.getItem("camspace_token");
+    const token = localStorage.getItem("camspace_token");
 
-  // Belum login
-  if (!token) {
-    router.replace("/login");
-    return;
-  }
-
-  // Tidak ada ID alat
-  if (!equipmentId) {
-    return;
-  }
-
-  async function loadData() {
-    try {
-      setError("");
-
-      // =========================
-      // 1. AMBIL DATA USER
-      // =========================
-
-      const userResponse = await apiFetch("/me", {
-        method: "GET",
-        token: token,
-      });
-
-      console.log("DATA USER PEMINJAMAN:", userResponse);
-
-      const userData = userResponse.data;
-
-      if (!userData || !userData.user_id) {
-        throw new Error("Data user tidak ditemukan.");
-      }
-
-      setUser(userData);
-
-      // =========================
-      // 2. AMBIL DATA ALAT
-      // =========================
-
-      const equipmentResponse = await fetch("/api/equipment");
-
-      const equipmentData = await equipmentResponse.json();
-
-      if (!equipmentResponse.ok) {
-        throw new Error(
-          equipmentData.message ||
-            "Gagal mengambil data alat."
-        );
-      }
-
-      const equipmentList =
-        equipmentData.data || equipmentData;
-
-      const selectedEquipment = equipmentList.find(
-        (item) =>
-          String(item.id) === String(equipmentId)
-      );
-
-      if (!selectedEquipment) {
-        throw new Error("Alat tidak ditemukan.");
-      }
-
-      setEquipment(selectedEquipment);
-    } catch (error) {
-      console.error(
-        "ERROR LOAD PEMINJAMAN:",
-        error
-      );
-
-      setError(
-        error.message ||
-          "Gagal mengambil data."
-      );
-    } finally {
-      setLoadingUser(false);
-      setLoadingEquipment(false);
+    if (!token) {
+      router.replace("/login");
+      return;
     }
-  }
 
-  loadData();
-}, [equipmentId, router]);
-  async function handleSubmit(event) {
-    event.preventDefault();
+    if (!equipmentId) return;
+
+    async function loadData() {
+      try {
+        setError("");
+
+        const userResponse = await apiFetch("/me", {
+          method: "GET",
+          token,
+        });
+
+        setUser(userResponse.data);
+
+        const equipmentResponse = await fetch("/api/equipment");
+        const equipmentData = await equipmentResponse.json();
+
+        const list = equipmentData.data || equipmentData;
+
+        const selected = list.find(
+          (item) => String(item.id) === String(equipmentId)
+        );
+
+        if (!selected) throw new Error("Alat tidak ditemukan.");
+
+        setEquipment(selected);
+      } catch (err) {
+        setError(err.message || "Gagal mengambil data.");
+      } finally {
+        setLoadingEquipment(false);
+        setLoadingUser(false);
+      }
+    }
+
+    loadData();
+  }, [equipmentId, router]);
+
+  // =============================
+  // HITUNG TOTAL HARGA OTOMATIS
+  // =============================
+
+  const jumlahHari =
+    tanggalMulai && tanggalSelesai
+      ? Math.max(
+          1,
+          Math.ceil(
+            (new Date(tanggalSelesai) - new Date(tanggalMulai)) /
+              (1000 * 60 * 60 * 24)
+          ) + 1
+        )
+      : 0;
+
+  const totalHarga =
+    equipment && jumlahHari
+      ? Number(equipment.price_per_day) *
+        Number(quantity) *
+        jumlahHari
+      : 0;
+
+  async function handleSubmit(e) {
+    e.preventDefault();
 
     setError("");
     setSuccess("");
 
     if (!tanggalMulai || !tanggalSelesai) {
-      setError(
-        "Tanggal mulai dan tanggal selesai wajib diisi."
-      );
+      setError("Tanggal mulai dan selesai wajib diisi.");
       return;
     }
 
     if (tanggalSelesai < tanggalMulai) {
-      setError(
-        "Tanggal selesai tidak boleh sebelum tanggal mulai."
-      );
-      return;
-    }
-
-    if (!user || !user.user_id) {
-      setError(
-        "Data pengguna belum tersedia."
-      );
+      setError("Tanggal selesai tidak boleh sebelum tanggal mulai.");
       return;
     }
 
     try {
       setLoadingSubmit(true);
 
-      const token =
-        localStorage.getItem(
-          "camspace_token"
-        );
-
-      if (!token) {
-        router.replace("/login");
-        return;
-      }
-
-      // =========================
-      // DATA YANG DIKIRIM
-      // =========================
+      const token = localStorage.getItem("camspace_token");
 
       const rentalData = {
         user_id: user.user_id,
@@ -158,48 +119,25 @@ export default function AjukanPeminjamanPage() {
         start_date: tanggalMulai,
         end_date: tanggalSelesai,
         quantity: Number(quantity),
-        keperluan: keperluan,
+        keperluan,
       };
 
-      console.log(
-        "DATA PEMINJAMAN:",
-        rentalData
-      );
+      const response = await fetch("/api/rentals", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(rentalData),
+      });
 
-      const response = await fetch(
-        "/api/rentals",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(
-            rentalData
-          ),
-        }
-      );
-
-      const data =
-        await response.json();
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "Gagal membuat pengajuan."
-        );
+        throw new Error(data.message || "Gagal membuat pengajuan.");
       }
 
-      console.log(
-        "HASIL PEMINJAMAN:",
-        data
-      );
-
-      // =========================
-      // SIMPAN PENGAJUAN
-      // UNTUK APPROVAL ADMIN
-      // =========================
+      // Simpan data untuk halaman status
 
       const pengajuan = {
         id: Date.now(),
@@ -210,174 +148,92 @@ export default function AjukanPeminjamanPage() {
         start_date: tanggalMulai,
         end_date: tanggalSelesai,
         quantity: Number(quantity),
-        keperluan: keperluan,
+        keperluan,
         status: "pending",
+
+        price_per_day: Number(equipment.price_per_day),
+        jumlah_hari: jumlahHari,
+        total_price: totalHarga,
       };
 
-      const dataLama = JSON.parse(
-        localStorage.getItem(
-          "camspace_rentals"
-        ) || "[]"
+      const lama = JSON.parse(
+        localStorage.getItem("camspace_rentals") || "[]"
       );
 
-      dataLama.push(pengajuan);
+      lama.push(pengajuan);
 
       localStorage.setItem(
         "camspace_rentals",
-        JSON.stringify(dataLama)
+        JSON.stringify(lama)
       );
 
-      // =========================
-      // BERHASIL
-      // =========================
-
-      setSuccess(
-        "Pengajuan peminjaman berhasil dikirim."
-      );
+      setSuccess("Pengajuan berhasil dikirim.");
 
       setTimeout(() => {
         router.push("/status");
-      }, 1500);
-    } catch (error) {
-      console.error(
-        "ERROR PEMINJAMAN:",
-        error
-      );
-
-      setError(
-        error.message ||
-          "Gagal membuat pengajuan."
-      );
+      }, 1200);
+    } catch (err) {
+      setError(err.message || "Gagal membuat pengajuan.");
     } finally {
       setLoadingSubmit(false);
     }
   }
 
-  // =========================
-  // ID ALAT TIDAK ADA
-  // =========================
-
-  if (!equipmentId) {
+  if (!equipmentId)
     return (
-      <div className="mx-auto max-w-xl px-6 py-20 text-center space-y-4">
-        <h1 className="text-2xl font-bold">
-          ID Alat Tidak Ditemukan
-        </h1>
-
-        <p className="text-sm text-zinc-500">
-          Silakan pilih alat terlebih dahulu
-          dari katalog.
-        </p>
-
-        <button
-          onClick={() =>
-            router.push("/kamera")
-          }
-          className="rounded-xl bg-black px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-        >
-          Kembali ke Katalog
-        </button>
+      <div className="p-10 text-center">
+        ID alat tidak ditemukan.
       </div>
     );
-  }
 
-  // =========================
-  // LOADING
-  // =========================
-
-  if (
-    loadingEquipment ||
-    loadingUser
-  ) {
+  if (loadingEquipment || loadingUser)
     return (
-      <div className="mx-auto max-w-xl px-6 py-20 text-center">
-        <p className="text-zinc-500">
-          Memuat data...
-        </p>
+      <div className="p-10 text-center">
+        Memuat...
       </div>
     );
-  }
-
-  // =========================
-  // ERROR
-  // =========================
-
-  if (error && !equipment) {
-    return (
-      <div className="mx-auto max-w-xl px-6 py-20 text-center space-y-4">
-        <h1 className="text-2xl font-bold">
-          Terjadi Kesalahan
-        </h1>
-
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          {error}
-        </p>
-
-        <button
-          onClick={() =>
-            router.push("/kamera")
-          }
-          className="rounded-xl bg-black px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-        >
-          Kembali ke Katalog
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
       <button
         onClick={() => router.back()}
-        className="mb-6 text-sm font-medium text-zinc-900 hover:underline dark:text-zinc-100"
+        className="mb-6 text-sm font-medium hover:underline"
       >
         ← Kembali
       </button>
 
       <div className="space-y-6">
-
-        {/* JUDUL */}
         <div>
           <h1 className="text-3xl font-black">
             Ajukan Peminjaman
           </h1>
-
-          <p className="mt-1 text-sm text-zinc-500">
-            Isi data peminjaman alat yang
-            kamu butuhkan.
+          <p className="text-zinc-500">
+            Isi data peminjaman alat.
           </p>
         </div>
 
-        {/* USER */}
         {user && (
-          <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-              Akun Peminjam
+          <div className="rounded-2xl border p-5">
+            <p className="text-xs uppercase text-zinc-500">
+              Peminjam
             </p>
-
-            <h2 className="mt-1 text-lg font-bold">
-              {user.name}
-            </h2>
-
+            <h2 className="font-bold">{user.name}</h2>
             <p className="text-sm text-zinc-500">
               {user.email}
             </p>
           </div>
         )}
 
-        {/* ALAT */}
         {equipment && (
-          <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-              Alat yang Dipilih
+          <div className="rounded-2xl border p-5">
+            <p className="text-xs uppercase text-zinc-500">
+              Alat
             </p>
-
-            <h2 className="mt-1 text-xl font-bold">
+            <h2 className="text-xl font-bold">
               {equipment.name}
             </h2>
-
-            <p className="mt-1 text-sm text-zinc-500">
-              {equipment.category} · Rp
+            <p className="text-sm text-zinc-500">
+              {equipment.category} • Rp
               {Number(
                 equipment.price_per_day
               ).toLocaleString("id-ID")}{" "}
@@ -386,107 +242,119 @@ export default function AjukanPeminjamanPage() {
           </div>
         )}
 
-        {/* FORM */}
         <form
           onSubmit={handleSubmit}
-          className="space-y-5 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
+          className="space-y-5 rounded-2xl border p-6"
         >
-          {/* TANGGAL MULAI */}
           <div>
             <label className="block text-sm font-medium">
               Tanggal Mulai
             </label>
-
             <input
               type="date"
               value={tanggalMulai}
-              onChange={(event) =>
-                setTanggalMulai(
-                  event.target.value
-                )
+              onChange={(e) =>
+                setTanggalMulai(e.target.value)
               }
-              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
+              className="mt-1 w-full rounded-xl border px-4 py-2"
             />
           </div>
 
-          {/* TANGGAL SELESAI */}
           <div>
             <label className="block text-sm font-medium">
               Tanggal Selesai
             </label>
-
             <input
               type="date"
               value={tanggalSelesai}
-              onChange={(event) =>
-                setTanggalSelesai(
-                  event.target.value
-                )
+              onChange={(e) =>
+                setTanggalSelesai(e.target.value)
               }
-              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
+              className="mt-1 w-full rounded-xl border px-4 py-2"
             />
           </div>
 
-          {/* JUMLAH */}
           <div>
             <label className="block text-sm font-medium">
               Jumlah
             </label>
-
             <input
               type="number"
               min="1"
               value={quantity}
-              onChange={(event) =>
-                setQuantity(
-                  event.target.value
-                )
+              onChange={(e) =>
+                setQuantity(e.target.value)
               }
-              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
+              className="mt-1 w-full rounded-xl border px-4 py-2"
             />
           </div>
 
-          {/* KEPERLUAN */}
           <div>
             <label className="block text-sm font-medium">
               Keperluan
             </label>
-
             <textarea
-              value={keperluan}
-              onChange={(event) =>
-                setKeperluan(
-                  event.target.value
-                )
-              }
-              placeholder="Contoh: Untuk dokumentasi acara kampus"
               rows={4}
-              className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
+              value={keperluan}
+              onChange={(e) =>
+                setKeperluan(e.target.value)
+              }
+              className="mt-1 w-full rounded-xl border px-4 py-2"
             />
           </div>
 
-          {/* ERROR */}
+          {/* Ringkasan Harga */}
+
+          {equipment && jumlahHari > 0 && (
+            <div className="rounded-xl bg-zinc-100 p-4">
+              <div className="flex justify-between text-sm">
+                <span>Harga / Hari</span>
+                <span>
+                  Rp
+                  {Number(
+                    equipment.price_per_day
+                  ).toLocaleString("id-ID")}
+                </span>
+              </div>
+
+              <div className="mt-2 flex justify-between text-sm">
+                <span>Lama Peminjaman</span>
+                <span>{jumlahHari} Hari</span>
+              </div>
+
+              <div className="mt-2 flex justify-between text-sm">
+                <span>Jumlah</span>
+                <span>{quantity} Unit</span>
+              </div>
+
+              <div className="mt-3 flex justify-between border-t pt-3 font-bold text-lg">
+                <span>Total Harga</span>
+                <span>
+                  Rp{totalHarga.toLocaleString("id-ID")}
+                </span>
+              </div>
+            </div>
+          )}
+
           {error && (
-            <div className="rounded-xl border border-zinc-300 bg-zinc-100 p-3 text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-100">
+            <div className="rounded-xl bg-red-100 p-3 text-red-700">
               {error}
             </div>
           )}
 
-          {/* SUCCESS */}
           {success && (
-            <div className="rounded-xl border border-zinc-300 bg-zinc-100 p-3 text-sm font-medium text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">
+            <div className="rounded-xl bg-green-100 p-3 text-green-700">
               {success}
             </div>
           )}
 
-          {/* SUBMIT */}
           <button
             type="submit"
             disabled={loadingSubmit}
-            className="w-full rounded-xl bg-black py-3 font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+            className="w-full rounded-xl bg-black py-3 font-semibold text-white hover:bg-zinc-800 disabled:opacity-50"
           >
             {loadingSubmit
-              ? "Mengirim Pengajuan..."
+              ? "Mengirim..."
               : "Ajukan Peminjaman"}
           </button>
         </form>
