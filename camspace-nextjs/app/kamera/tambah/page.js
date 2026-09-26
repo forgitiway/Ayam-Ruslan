@@ -214,15 +214,18 @@ export default function TambahAlatPage() {
             Kategori
           </label>
 
-          <input
-            type="text"
+          <select
             name="category"
             value={form.category}
             onChange={handleChange}
-            placeholder="Contoh: Kamera"
             required
             className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-800"
-          />
+          >
+            <option value="">Pilih kategori</option>
+            <option value="Kamera">Kamera</option>
+            <option value="Audio">Audio</option>
+            <option value="Tripod">Tripod</option>
+          </select>
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">

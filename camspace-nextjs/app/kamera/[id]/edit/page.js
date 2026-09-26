@@ -41,8 +41,7 @@ export default function EditAlatPage() {
 
         if (!response.ok) {
           throw new Error(
-            data.message ||
-              "Gagal mengambil data alat."
+            data.message || "Gagal mengambil data alat."
           );
         }
 
@@ -51,13 +50,10 @@ export default function EditAlatPage() {
         setForm({
           name: item.name || "",
           category: item.category || "",
-          price_per_day:
-            item.price_per_day || "",
+          price_per_day: item.price_per_day || "",
           stock: item.stock || "",
-          description:
-            item.description || "",
-          image_url:
-            item.image_url || "",
+          description: item.description || "",
+          image_url: item.image_url || "",
         });
 
         if (item.image_url) {
@@ -65,8 +61,7 @@ export default function EditAlatPage() {
         }
       } catch (error) {
         setError(
-          error.message ||
-            "Gagal mengambil data alat."
+          error.message || "Gagal mengambil data alat."
         );
       } finally {
         setLoading(false);
@@ -95,17 +90,14 @@ export default function EditAlatPage() {
     }
 
     if (!file.type.startsWith("image/")) {
-      setError(
-        "File yang dipilih harus berupa gambar."
-      );
+      setError("File yang dipilih harus berupa gambar.");
       return;
     }
 
     setImageFile(file);
     setError("");
 
-    const previewUrl =
-      URL.createObjectURL(file);
+    const previewUrl = URL.createObjectURL(file);
 
     setImagePreview(previewUrl);
   }
@@ -122,20 +114,16 @@ export default function EditAlatPage() {
 
       formData.append("file", imageFile);
 
-      const response = await fetch(
-        "/api/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
 
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
-            "Gagal mengupload gambar."
+          data.message || "Gagal mengupload gambar."
         );
       }
 
@@ -153,25 +141,21 @@ export default function EditAlatPage() {
       setError("");
       setMessage("");
 
-      const imageUrl =
-        await uploadImage();
+      const imageUrl = await uploadImage();
 
       const response = await fetch(
         `/api/equipment/${params.id}`,
         {
           method: "PUT",
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             name: form.name,
             category: form.category,
-            price_per_day:
-              Number(form.price_per_day),
+            price_per_day: Number(form.price_per_day),
             stock: Number(form.stock),
-            description:
-              form.description,
+            description: form.description,
             image_url: imageUrl,
           }),
         }
@@ -181,14 +165,11 @@ export default function EditAlatPage() {
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
-            "Gagal mengubah data alat."
+          data.message || "Gagal mengubah data alat."
         );
       }
 
-      setMessage(
-        "Data alat berhasil diperbarui."
-      );
+      setMessage("Data alat berhasil diperbarui.");
 
       setTimeout(() => {
         router.push("/kamera");
@@ -196,8 +177,7 @@ export default function EditAlatPage() {
       }, 800);
     } catch (error) {
       setError(
-        error.message ||
-          "Gagal mengubah data alat."
+        error.message || "Gagal mengubah data alat."
       );
     } finally {
       setSaving(false);
@@ -220,7 +200,7 @@ export default function EditAlatPage() {
 
   if (error && !form.name) {
     return (
-      <div className="mx-auto max-w-xl px-6 py-20 text-center space-y-4">
+      <div className="mx-auto max-w-xl space-y-4 px-6 py-20 text-center">
         <h1 className="text-2xl font-bold">
           Gagal Mengambil Data
         </h1>
@@ -233,7 +213,7 @@ export default function EditAlatPage() {
           href="/kamera"
           className="inline-block rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-semibold transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
         >
-        Kembali
+          Kembali
         </Link>
       </div>
     );
@@ -241,41 +221,45 @@ export default function EditAlatPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
-      <div className="mb-8 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black">
-            Edit Alat
-          </h1>
-
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Ubah informasi alat multimedia.
-          </p>
-        </div>
-
-        <Link
-          href="/kamera"
-          className="shrink-0 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-semibold transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-        >
-        Kembali
-        </Link>
-      </div>
-
       <form
         onSubmit={handleSubmit}
         className="space-y-5 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
       >
+        {/* Header Card */}
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-black">
+              Edit Alat
+            </h1>
+
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              Ubah informasi alat multimedia.
+            </p>
+          </div>
+
+          <Link
+            href="/kamera"
+            className="shrink-0 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-semibold transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+          >
+            Kembali
+          </Link>
+        </div>
+
+        {/* Pesan Error */}
         {error && (
           <div className="rounded-xl bg-red-50 p-4 text-sm text-red-600 dark:bg-red-950/30 dark:text-red-400">
             {error}
           </div>
         )}
 
+        {/* Pesan Berhasil */}
         {message && (
           <div className="rounded-xl bg-green-50 p-4 text-sm text-green-600 dark:bg-green-950/30 dark:text-green-400">
             {message}
           </div>
         )}
 
+        {/* Nama Alat */}
         <div>
           <label className="mb-2 block text-sm font-semibold">
             Nama Alat
@@ -291,21 +275,27 @@ export default function EditAlatPage() {
           />
         </div>
 
+        {/* Kategori */}
         <div>
           <label className="mb-2 block text-sm font-semibold">
             Kategori
           </label>
 
-          <input
-            type="text"
+          <select
             name="category"
             value={form.category}
             onChange={handleChange}
             required
             className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-800"
-          />
+          >
+            <option value="">Pilih kategori</option>
+            <option value="Kamera">Kamera</option>
+            <option value="Audio">Audio</option>
+            <option value="Tripod">Tripod</option>
+          </select>
         </div>
 
+        {/* Harga dan Stok */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div>
             <label className="mb-2 block text-sm font-semibold">
@@ -340,6 +330,7 @@ export default function EditAlatPage() {
           </div>
         </div>
 
+        {/* Gambar Alat */}
         <div>
           <label className="mb-2 block text-sm font-semibold">
             Gambar Alat
@@ -357,6 +348,7 @@ export default function EditAlatPage() {
           </p>
         </div>
 
+        {/* Preview Gambar */}
         {imagePreview && (
           <div>
             <p className="mb-2 text-sm font-semibold">
@@ -373,6 +365,7 @@ export default function EditAlatPage() {
           </div>
         )}
 
+        {/* Deskripsi */}
         <div>
           <label className="mb-2 block text-sm font-semibold">
             Deskripsi
@@ -387,6 +380,7 @@ export default function EditAlatPage() {
           />
         </div>
 
+        {/* Tombol */}
         <div className="flex gap-3 pt-2">
           <Link
             href="/kamera"
@@ -398,7 +392,7 @@ export default function EditAlatPage() {
           <button
             type="submit"
             disabled={saving || uploading}
-            className="flex-1 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex-1 rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
           >
             {uploading
               ? "Mengupload Gambar..."
