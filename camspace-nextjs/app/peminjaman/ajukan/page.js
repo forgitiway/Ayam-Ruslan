@@ -31,24 +31,40 @@ export default function AjukanPeminjamanPage() {
   const [user, setUser] = useState(null);
   const [equipment, setEquipment] = useState(null);
 
-  const [loadingEquipment, setLoadingEquipment] = useState(true);
-  const [loadingUser, setLoadingUser] = useState(true);
+  const [loadingEquipment, setLoadingEquipment] =
+    useState(true);
 
-  const [tanggalMulai, setTanggalMulai] = useState("");
-  const [tanggalSelesai, setTanggalSelesai] = useState("");
-  const [quantity, setQuantity] = useState(1);
-  const [keperluan, setKeperluan] = useState("");
+  const [loadingUser, setLoadingUser] =
+    useState(true);
 
-  const [loadingSubmit, setLoadingSubmit] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [tanggalMulai, setTanggalMulai] =
+    useState("");
 
-  // =============================
+  const [tanggalSelesai, setTanggalSelesai] =
+    useState("");
+
+  const [quantity, setQuantity] =
+    useState(1);
+
+  const [keperluan, setKeperluan] =
+    useState("");
+
+  const [loadingSubmit, setLoadingSubmit] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  const [success, setSuccess] =
+    useState("");
+
+  // =====================================================
   // AMBIL DATA USER DAN ALAT
-  // =============================
+  // =====================================================
 
   useEffect(() => {
-    const token = localStorage.getItem("camspace_token");
+    const token =
+      localStorage.getItem("camspace_token");
 
     if (!token) {
       router.replace("/login");
@@ -69,10 +85,11 @@ export default function AjukanPeminjamanPage() {
         // AMBIL DATA USER
         // =============================
 
-        const userResponse = await apiFetch("/me", {
-          method: "GET",
-          token,
-        });
+        const userResponse =
+          await apiFetch("/me", {
+            method: "GET",
+            token,
+          });
 
         setUser(userResponse.data);
 
@@ -80,9 +97,8 @@ export default function AjukanPeminjamanPage() {
         // AMBIL DATA ALAT
         // =============================
 
-        const equipmentResponse = await fetch(
-          "/api/equipment"
-        );
+        const equipmentResponse =
+          await fetch("/api/equipment");
 
         const equipmentData =
           await equipmentResponse.json();
@@ -95,13 +111,15 @@ export default function AjukanPeminjamanPage() {
         }
 
         const list =
-          equipmentData.data || equipmentData;
+          equipmentData.data ||
+          equipmentData;
 
-        const selected = list.find(
-          (item) =>
-            String(item.id) ===
-            String(equipmentId)
-        );
+        const selected =
+          list.find(
+            (item) =>
+              String(item.id) ===
+              String(equipmentId)
+          );
 
         if (!selected) {
           throw new Error(
@@ -112,10 +130,12 @@ export default function AjukanPeminjamanPage() {
         setEquipment(selected);
 
         // ==================================================
-        // JIKA STOK 0, TIDAK BOLEH MELAKUKAN PEMINJAMAN
+        // JIKA STOK 0
         // ==================================================
 
-        if (Number(selected.stock) <= 0) {
+        if (
+          Number(selected.stock) <= 0
+        ) {
           setError(
             "Alat ini sedang tidak tersedia karena stok habis."
           );
@@ -139,12 +159,13 @@ export default function AjukanPeminjamanPage() {
     loadData();
   }, [equipmentId, router]);
 
-  // =============================
+  // =====================================================
   // HITUNG JUMLAH HARI
-  // =============================
+  // =====================================================
 
   const jumlahHari =
-    tanggalMulai && tanggalSelesai
+    tanggalMulai &&
+    tanggalSelesai
       ? Math.max(
           1,
           Math.ceil(
@@ -155,9 +176,9 @@ export default function AjukanPeminjamanPage() {
         )
       : 0;
 
-  // =============================
+  // =====================================================
   // HITUNG TOTAL HARGA
-  // =============================
+  // =====================================================
 
   const totalHarga =
     equipment && jumlahHari
@@ -168,9 +189,9 @@ export default function AjukanPeminjamanPage() {
         jumlahHari
       : 0;
 
-  // =============================
+  // =====================================================
   // SUBMIT PEMINJAMAN
-  // =============================
+  // =====================================================
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -192,14 +213,18 @@ export default function AjukanPeminjamanPage() {
       return;
     }
 
-    if (tanggalMulai < hariIni) {
+    if (
+      tanggalMulai < hariIni
+    ) {
       setError(
         "Tanggal mulai tidak boleh sebelum hari ini."
       );
       return;
     }
 
-    if (tanggalSelesai < hariIni) {
+    if (
+      tanggalSelesai < hariIni
+    ) {
       setError(
         "Tanggal selesai tidak boleh sebelum hari ini."
       );
@@ -207,7 +232,8 @@ export default function AjukanPeminjamanPage() {
     }
 
     if (
-      tanggalSelesai < tanggalMulai
+      tanggalSelesai <
+      tanggalMulai
     ) {
       setError(
         "Tanggal selesai tidak boleh sebelum tanggal mulai."
@@ -227,12 +253,13 @@ export default function AjukanPeminjamanPage() {
     }
 
     // ==================================================
-    // VALIDASI JUMLAH TIDAK BOLEH MELEBIHI STOK
+    // JUMLAH TIDAK BOLEH MELEBIHI STOK
     // ==================================================
 
     if (
       equipment &&
-      Number(quantity) > Number(equipment.stock)
+      Number(quantity) >
+        Number(equipment.stock)
     ) {
       setError(
         `Jumlah peminjaman tidak boleh melebihi stok yang tersedia (${equipment.stock} unit).`
@@ -284,7 +311,8 @@ export default function AjukanPeminjamanPage() {
 
       const rentalData = {
         user_id: user.user_id,
-        equipment_id: Number(equipmentId),
+        equipment_id:
+          Number(equipmentId),
         start_date: tanggalMulai,
         end_date: tanggalSelesai,
         quantity: Number(quantity),
@@ -300,21 +328,24 @@ export default function AjukanPeminjamanPage() {
       // KIRIM KE API RENTALS
       // =============================
 
-      const response = await fetch(
-        "/api/rentals",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-            Authorization:
-              `Bearer ${token}`,
-          },
-          body: JSON.stringify(
-            rentalData
-          ),
-        }
-      );
+      const response =
+        await fetch(
+          "/api/rentals",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Authorization:
+                `Bearer ${token}`,
+            },
+
+            body: JSON.stringify(
+              rentalData
+            ),
+          }
+        );
 
       const data =
         await response.json();
@@ -346,7 +377,6 @@ export default function AjukanPeminjamanPage() {
       setTimeout(() => {
         router.push("/status");
       }, 1200);
-
     } catch (err) {
       console.error(
         "ERROR PENGAJUAN:",
@@ -362,272 +392,355 @@ export default function AjukanPeminjamanPage() {
     }
   }
 
-  // =============================
+  // =====================================================
   // ID ALAT TIDAK ADA
-  // =============================
+  // =====================================================
 
   if (!equipmentId) {
     return (
-      <div className="p-10 text-center">
-        ID alat tidak ditemukan.
+      <div className="min-h-screen bg-zinc-200 px-6 py-12 font-sans">
+        <div className="p-10 text-center">
+          ID alat tidak ditemukan.
+        </div>
       </div>
     );
   }
 
-  // =============================
+  // =====================================================
   // LOADING
-  // =============================
+  // =====================================================
 
   if (
     loadingEquipment ||
     loadingUser
   ) {
     return (
-      <div className="p-10 text-center">
-        Memuat...
+      <div className="min-h-screen bg-zinc-200 px-6 py-12 font-sans">
+        <div className="p-10 text-center">
+          Memuat...
+        </div>
       </div>
     );
   }
 
+  // =====================================================
+  // HALAMAN UTAMA
+  // =====================================================
+
   return (
-    <div className="mx-auto max-w-2xl px-6 py-12">
+    <div className="min-h-screen bg-zinc-200 px-6 py-12 font-sans">
+      <div className="mx-auto max-w-2xl">
 
-      {/* KEMBALI */}
-      <button
-        onClick={() => router.back()}
-        className="mb-6 text-sm font-medium hover:underline"
-      >
-        Kembali
-      </button>
+        {/* CARD UTAMA */}
+        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-zinc-200 md:p-8">
 
-      <div className="space-y-6">
+          {/* HEADER */}
+          <div className="mb-8">
 
-        {/* HEADER */}
-        <div>
-          <h1 className="text-3xl font-black">
-            Ajukan Peminjaman
-          </h1>
+            <div className="flex items-center gap-3">
 
-          <p className="text-zinc-500">
-            Isi data peminjaman alat.
-          </p>
-        </div>
-
-        {/* USER */}
-        {user && (
-          <div className="rounded-2xl border p-5">
-            <p className="text-xs uppercase text-zinc-500">
-              Peminjam
-            </p>
-
-            <h2 className="font-bold">
-              {user.name}
-            </h2>
-
-            <p className="text-sm text-zinc-500">
-              {user.email}
-            </p>
-          </div>
-        )}
-
-        {/* ALAT */}
-        {equipment && (
-          <div className="rounded-2xl border p-5">
-            <p className="text-xs uppercase text-zinc-500">
-              Alat
-            </p>
-
-            <h2 className="text-xl font-bold">
-              {equipment.name}
-            </h2>
-
-            <p className="text-sm text-zinc-500">
-              {equipment.category} • Rp
-              {Number(
-                equipment.price_per_day
-              ).toLocaleString(
-                "id-ID"
-              )}{" "}
-              / hari
-            </p>
-          </div>
-        )}
-
-        {/* FORM */}
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-5 rounded-2xl border p-6"
-        >
-
-          {/* TANGGAL MULAI */}
-          <div>
-            <label className="block text-sm font-medium">
-              Tanggal Mulai
-            </label>
-
-            <input
-              type="date"
-              min={hariIni}
-              value={tanggalMulai}
-              onChange={(e) => {
-                const tanggal =
-                  e.target.value;
-
-                setTanggalMulai(
-                  tanggal
-                );
-
-                if (
-                  tanggalSelesai &&
-                  tanggalSelesai < tanggal
-                ) {
-                  setTanggalSelesai("");
+              {/* TOMBOL PANAH */}
+              <button
+                onClick={() =>
+                  router.back()
                 }
-              }}
-              className="mt-1 w-full rounded-xl border px-4 py-2"
-            />
+                className="text-2xl font-medium text-zinc-700 transition hover:text-black"
+                aria-label="Kembali"
+              >
+                ←
+              </button>
+
+              {/* JUDUL */}
+              <h1 className="text-3xl font-black text-zinc-900">
+                Ajukan Peminjaman
+              </h1>
+
+            </div>
           </div>
 
-          {/* TANGGAL SELESAI */}
-          <div>
-            <label className="block text-sm font-medium">
-              Tanggal Selesai
-            </label>
+          <div className="space-y-6">
 
-            <input
-              type="date"
-              min={
-                tanggalMulai ||
-                hariIni
-              }
-              value={tanggalSelesai}
-              onChange={(e) =>
-                setTanggalSelesai(
-                  e.target.value
-                )
-              }
-              className="mt-1 w-full rounded-xl border px-4 py-2"
-            />
-          </div>
+            {/* =================================================
+                USER / PEMINJAM
+            ================================================= */}
 
-          {/* JUMLAH */}
-<div>
-  <label className="block text-sm font-medium">
-    Jumlah
-  </label>
+            {user && (
+              <div className="rounded-2xl border border-zinc-300 bg-white p-5">
 
-  <input
-    type="number"
-    min="1"
-    max={
-      equipment
-        ? Number(equipment.stock)
-        : undefined
-    }
-    value={quantity}
-    onChange={(e) => {
-      const nilai = Number(e.target.value);
+                <p className="text-xs uppercase text-zinc-500">
+                  Peminjam
+                </p>
 
-      if (
-        equipment &&
-        nilai > Number(equipment.stock)
-      ) {
-        setQuantity(Number(equipment.stock));
-        return;
-      }
+                <h2 className="font-bold text-zinc-900">
+                  {user.name}
+                </h2>
 
-      setQuantity(e.target.value);
-    }}
-    className="mt-1 w-full rounded-xl border px-4 py-2"
-  />
-</div>
-
-          {/* RINGKASAN HARGA */}
-          {equipment &&
-            jumlahHari > 0 && (
-              <div className="rounded-xl bg-zinc-100 p-4">
-
-                <div className="flex justify-between text-sm">
-                  <span>
-                    Harga / Hari
-                  </span>
-
-                  <span>
-                    Rp
-                    {Number(
-                      equipment.price_per_day
-                    ).toLocaleString(
-                      "id-ID"
-                    )}
-                  </span>
-                </div>
-
-                <div className="mt-2 flex justify-between text-sm">
-                  <span>
-                    Lama Peminjaman
-                  </span>
-
-                  <span>
-                    {jumlahHari} Hari
-                  </span>
-                </div>
-
-                <div className="mt-2 flex justify-between text-sm">
-                  <span>
-                    Jumlah
-                  </span>
-
-                  <span>
-                    {quantity} Unit
-                  </span>
-                </div>
-
-                <div className="mt-3 flex justify-between border-t pt-3 text-lg font-bold">
-                  <span>
-                    Total Harga
-                  </span>
-
-                  <span>
-                    Rp
-                    {totalHarga.toLocaleString(
-                      "id-ID"
-                    )}
-                  </span>
-                </div>
+                <p className="text-sm text-zinc-500">
+                  {user.email}
+                </p>
 
               </div>
             )}
 
-          {/* ERROR */}
-          {error && (
-            <div className="rounded-xl bg-red-100 p-3 text-red-700">
-              {error}
-            </div>
-          )}
+            {/* =================================================
+                ALAT
+            ================================================= */}
 
-          {/* SUCCESS */}
-          {success && (
-            <div className="rounded-xl bg-green-100 p-3 text-green-700">
-              {success}
-            </div>
-          )}
+            {equipment && (
+              <div className="rounded-2xl border border-zinc-300 bg-white p-5">
 
-          {/* SUBMIT */}
-          <button
-            type="submit"
-            disabled={
-              loadingSubmit ||
-              !equipment ||
-              Number(equipment.stock) <= 0
-            }
-            className="w-full rounded-xl bg-black py-3 font-semibold text-white hover:bg-zinc-800 disabled:opacity-50"
-          >
-            {loadingSubmit
-              ? "Mengirim..."
-              : "Ajukan Peminjaman"}
-          </button>
+                <p className="text-xs uppercase text-zinc-500">
+                  Alat
+                </p>
 
-        </form>
+                <h2 className="text-xl font-bold text-zinc-900">
+                  {equipment.name}
+                </h2>
+
+                <p className="text-sm text-zinc-500">
+                  {equipment.category} • Rp
+                  {Number(
+                    equipment.price_per_day
+                  ).toLocaleString(
+                    "id-ID"
+                  )}{" "}
+                  / hari
+                </p>
+
+              </div>
+            )}
+
+            {/* =================================================
+                FORM
+            ================================================= */}
+
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-5"
+            >
+
+              {/* TANGGAL MULAI */}
+              <div>
+                <label className="block text-sm font-medium text-zinc-900">
+                  Tanggal Mulai
+                </label>
+
+                <input
+                  type="date"
+                  min={hariIni}
+                  value={tanggalMulai}
+                  onChange={(e) => {
+                    const tanggal =
+                      e.target.value;
+
+                    setTanggalMulai(
+                      tanggal
+                    );
+
+                    if (
+                      tanggalSelesai &&
+                      tanggalSelesai <
+                        tanggal
+                    ) {
+                      setTanggalSelesai(
+                        ""
+                      );
+                    }
+                  }}
+                  className="mt-1 w-full rounded-xl border border-zinc-300 px-4 py-2 text-zinc-900 outline-none transition focus:border-black focus:ring-1 focus:ring-black"
+                />
+              </div>
+
+              {/* TANGGAL SELESAI */}
+              <div>
+                <label className="block text-sm font-medium text-zinc-900">
+                  Tanggal Selesai
+                </label>
+
+                <input
+                  type="date"
+                  min={
+                    tanggalMulai ||
+                    hariIni
+                  }
+                  value={tanggalSelesai}
+                  onChange={(e) =>
+                    setTanggalSelesai(
+                      e.target.value
+                    )
+                  }
+                  className="mt-1 w-full rounded-xl border border-zinc-300 px-4 py-2 text-zinc-900 outline-none transition focus:border-black focus:ring-1 focus:ring-black"
+                />
+              </div>
+
+              {/* JUMLAH */}
+              <div>
+                <label className="block text-sm font-medium text-zinc-900">
+                  Jumlah
+                </label>
+
+                <input
+                  type="number"
+                  min="1"
+                  max={
+                    equipment
+                      ? Number(
+                          equipment.stock
+                        )
+                      : undefined
+                  }
+                  value={quantity}
+                  onChange={(e) => {
+                    const nilai =
+                      Number(
+                        e.target.value
+                      );
+
+                    if (
+                      equipment &&
+                      nilai >
+                        Number(
+                          equipment.stock
+                        )
+                    ) {
+                      setQuantity(
+                        Number(
+                          equipment.stock
+                        )
+                      );
+                      return;
+                    }
+
+                    setQuantity(
+                      e.target.value
+                    );
+                  }}
+                  className="mt-1 w-full rounded-xl border border-zinc-300 px-4 py-2 text-zinc-900 outline-none transition focus:border-black focus:ring-1 focus:ring-black"
+                />
+              </div>
+
+              {/* KEPERLUAN */}
+              <div>
+                <label className="block text-sm font-medium text-zinc-900">
+                  Keperluan
+                </label>
+
+                <textarea
+                  rows={4}
+                  value={keperluan}
+                  onChange={(e) =>
+                    setKeperluan(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Contoh: Dokumentasi kegiatan kampus"
+                  className="mt-1 w-full rounded-xl border border-zinc-300 px-4 py-2 text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-black focus:ring-1 focus:ring-black"
+                />
+              </div>
+
+              {/* =================================================
+                  RINGKASAN HARGA
+              ================================================= */}
+
+              {equipment &&
+                jumlahHari > 0 && (
+                  <div className="rounded-xl bg-zinc-100 p-4">
+
+                    <div className="flex justify-between text-sm">
+                      <span>
+                        Harga / Hari
+                      </span>
+
+                      <span>
+                        Rp
+                        {Number(
+                          equipment.price_per_day
+                        ).toLocaleString(
+                          "id-ID"
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="mt-2 flex justify-between text-sm">
+                      <span>
+                        Lama Peminjaman
+                      </span>
+
+                      <span>
+                        {jumlahHari} Hari
+                      </span>
+                    </div>
+
+                    <div className="mt-2 flex justify-between text-sm">
+                      <span>
+                        Jumlah
+                      </span>
+
+                      <span>
+                        {quantity} Unit
+                      </span>
+                    </div>
+
+                    <div className="mt-3 flex justify-between border-t border-zinc-300 pt-3 text-lg font-bold">
+                      <span>
+                        Total Harga
+                      </span>
+
+                      <span>
+                        Rp
+                        {totalHarga.toLocaleString(
+                          "id-ID"
+                        )}
+                      </span>
+                    </div>
+
+                  </div>
+                )}
+
+              {/* =================================================
+                  ERROR
+              ================================================= */}
+
+              {error && (
+                <div className="rounded-xl bg-red-100 p-3 text-sm text-red-700">
+                  {error}
+                </div>
+              )}
+
+              {/* =================================================
+                  SUCCESS
+              ================================================= */}
+
+              {success && (
+                <div className="rounded-xl bg-green-100 p-3 text-sm text-green-700">
+                  {success}
+                </div>
+              )}
+
+              {/* =================================================
+                  SUBMIT
+              ================================================= */}
+
+              <button
+                type="submit"
+                disabled={
+                  loadingSubmit ||
+                  !equipment ||
+                  Number(
+                    equipment.stock
+                  ) <= 0
+                }
+                className="w-full rounded-xl bg-black py-3 font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loadingSubmit
+                  ? "Mengirim..."
+                  : "Ajukan Peminjaman"}
+              </button>
+
+            </form>
+
+          </div>
+        </div>
       </div>
     </div>
   );
