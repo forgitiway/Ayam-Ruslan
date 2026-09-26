@@ -108,7 +108,7 @@ dataKamera = [...apiData, ...extraEquipment];
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900 dark:bg-black dark:text-zinc-100">
+    <div className="min-h-screen bg-zinc-200 font-sans text-zinc-900 dark:bg-black dark:text-zinc-100">
 
       {/* HERO */}
       <section className="relative overflow-hidden bg-black px-6 py-20 text-white">
