@@ -212,11 +212,6 @@ export default function KatalogPage() {
             <h1 className="text-3xl font-black tracking-tight">
               Katalog Alat Multimedia
             </h1>
-
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              Pilih alat multimedia sesuai kebutuhan produksi kamu.
-            </p>
-
           </div>
 
           {/* =========================
