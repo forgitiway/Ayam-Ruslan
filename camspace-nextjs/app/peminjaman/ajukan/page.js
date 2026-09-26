@@ -5,11 +5,29 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 
+function getTanggalHariIni() {
+  const sekarang = new Date();
+
+  const tahun = sekarang.getFullYear();
+
+  const bulan = String(
+    sekarang.getMonth() + 1
+  ).padStart(2, "0");
+
+  const tanggal = String(
+    sekarang.getDate()
+  ).padStart(2, "0");
+
+  return `${tahun}-${bulan}-${tanggal}`;
+}
+
 export default function AjukanPeminjamanPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const equipmentId = searchParams.get("id");
+
+  const hariIni = getTanggalHariIni();
 
   const [user, setUser] = useState(null);
   const [equipment, setEquipment] = useState(null);
@@ -93,20 +111,39 @@ export default function AjukanPeminjamanPage() {
       : 0;
 
   async function handleSubmit(e) {
-    e.preventDefault();
+     e.preventDefault();
 
-    setError("");
-    setSuccess("");
+      setError("");
+      setSuccess("");
 
-    if (!tanggalMulai || !tanggalSelesai) {
-      setError("Tanggal mulai dan selesai wajib diisi.");
-      return;
-    }
+      if (!tanggalMulai || !tanggalSelesai) {
+        setError("Tanggal mulai dan selesai wajib diisi.");
+        return;
+      }
 
-    if (tanggalSelesai < tanggalMulai) {
-      setError("Tanggal selesai tidak boleh sebelum tanggal mulai.");
-      return;
-    }
+
+      if (tanggalMulai < hariIni) {
+        setError(
+          "Tanggal mulai tidak boleh sebelum hari ini."
+        );
+        return;
+      }
+
+
+      if (tanggalSelesai < hariIni) {
+        setError(
+          "Tanggal selesai tidak boleh sebelum hari ini."
+        );
+        return;
+      }
+
+
+      if (tanggalSelesai < tanggalMulai) {
+        setError(
+          "Tanggal selesai tidak boleh sebelum tanggal mulai."
+        );
+        return;
+      }
 
     try {
       setLoadingSubmit(true);
@@ -252,27 +289,38 @@ export default function AjukanPeminjamanPage() {
             </label>
             <input
               type="date"
+              min={hariIni}
               value={tanggalMulai}
-              onChange={(e) =>
-                setTanggalMulai(e.target.value)
-              }
-              className="mt-1 w-full rounded-xl border px-4 py-2"
-            />
+              onChange={(e) => {
+                const tanggal = e.target.value;
+
+                setTanggalMulai(tanggal);
+
+                  if (
+                    tanggalSelesai &&
+                    tanggalSelesai < tanggal
+                  ) {
+                    setTanggalSelesai("");
+                  }
+                }}
+                className="mt-1 w-full rounded-xl border px-4 py-2"
+              />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium">
-              Tanggal Selesai
-            </label>
-            <input
-              type="date"
-              value={tanggalSelesai}
-              onChange={(e) =>
-                setTanggalSelesai(e.target.value)
-              }
-              className="mt-1 w-full rounded-xl border px-4 py-2"
-            />
-          </div>
+            <div>
+                <label className="block text-sm font-medium">
+                  Tanggal Selesai
+                </label>
+                <input
+                  type="date"
+                  min={tanggalMulai || hariIni}
+                  value={tanggalSelesai}
+                  onChange={(e) =>
+                    setTanggalSelesai(e.target.value)
+                  }
+                  className="mt-1 w-full rounded-xl border px-4 py-2"
+                />
+              </div>
 
           <div>
             <label className="block text-sm font-medium">
