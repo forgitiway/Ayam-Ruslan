@@ -258,7 +258,7 @@ export default function Home() {
             <p className="mx-auto max-w-2xl text-base text-zinc-400 sm:text-lg">
               Kelola alat, pantau peminjaman, dan
               proses persetujuan melalui sistem
-              administrasi CamSpace.
+              administrasi CamSpace ^w^.
             </p>
 
           </div>
