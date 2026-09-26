@@ -276,7 +276,7 @@ export default function AjukanPeminjamanPage() {
         onClick={() => router.back()}
         className="mb-6 text-sm font-medium hover:underline"
       >
-        ← Kembali
+      Kembali
       </button>
 
       <div className="space-y-6">

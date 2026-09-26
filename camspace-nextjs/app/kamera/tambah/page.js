@@ -163,7 +163,7 @@ export default function TambahAlatPage() {
           href="/kamera"
           className="text-sm text-indigo-600 hover:underline dark:text-indigo-400"
         >
-          ← Kembali ke Katalog
+        Kembali ke Katalog
         </Link>
 
         <h1 className="mt-4 text-3xl font-black">

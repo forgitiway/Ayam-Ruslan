@@ -19,7 +19,10 @@ export default function AdminApprovalPage() {
 
       setRentals(data);
     } catch (error) {
-      console.error("Gagal mengambil data peminjaman:", error);
+      console.error(
+        "Gagal mengambil data peminjaman:",
+        error
+      );
       setRentals([]);
     } finally {
       setLoading(false);
@@ -112,215 +115,311 @@ export default function AdminApprovalPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl px-6 py-12">
-        <h1 className="text-3xl font-black">
-          Dashboard Admin
-        </h1>
+      <main className="min-h-screen bg-zinc-100 px-6 py-12 dark:bg-zinc-950">
+        <div className="mx-auto max-w-6xl">
+          <h1 className="text-3xl font-black">
+            Dashboard Admin
+          </h1>
 
-        <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
-          Memuat data...
-        </p>
-      </div>
+          <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+            Memuat data...
+          </p>
+        </div>
+      </main>
     );
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      {/* Header */}
-      <div className="mb-8 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight">
-            Dashboard Admin
-          </h1>
+    <main className="min-h-screen bg-zinc-100 px-6 py-12 dark:bg-zinc-950">
+      <div className="mx-auto max-w-6xl">
 
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Kelola peminjaman dan persetujuan alat CamSpace.
-          </p>
-        </div>
+        {/* =========================
+            HEADER
+        ========================= */}
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight">
+              Dashboard Admin
+            </h1>
 
-        <Link
-          href="/kamera"
-          className="shrink-0 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-semibold transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-        >
-          ← Kembali
-        </Link>
-      </div>
-
-      {/* Statistik Dashboard */}
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-        {/* Pending */}
-        <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Menunggu Persetujuan
-          </p>
-
-          <p className="mt-2 text-3xl font-black">
-            {pendingCount}
-          </p>
-
-          <p className="mt-1 text-xs text-zinc-500">
-            Pengajuan menunggu approval
-          </p>
-        </div>
-
-        {/* Approved */}
-        <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Disetujui
-          </p>
-
-          <p className="mt-2 text-3xl font-black">
-            {approvedCount}
-          </p>
-
-          <p className="mt-1 text-xs text-zinc-500">
-            Pengajuan telah disetujui
-          </p>
-        </div>
-
-        {/* Rejected */}
-        <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Ditolak
-          </p>
-
-          <p className="mt-2 text-3xl font-black">
-            {rejectedCount}
-          </p>
-
-          <p className="mt-1 text-xs text-zinc-500">
-            Pengajuan telah ditolak
-          </p>
-        </div>
-      </div>
-
-      {/* Approval */}
-      <div className="mt-10">
-        <div className="mb-5">
-          <h2 className="text-2xl font-black">
-            Approval Peminjaman
-          </h2>
-
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Kelola pengajuan peminjaman alat dari pengguna.
-          </p>
-        </div>
-
-        {rentals.length === 0 ? (
-          <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Belum ada pengajuan peminjaman.
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              Kelola peminjaman dan persetujuan alat CamSpace.
             </p>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {rentals.map((item) => (
-              <div
-                key={item.id}
-                className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
-              >
-                {/* Header Pengajuan */}
-                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold">
-                      {item.equipment_name}
-                    </h3>
 
-                    <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                      Pengaju: {item.user_name}
-                    </p>
-                  </div>
+          <Link
+            href="/kamera"
+            className="shrink-0 rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:bg-zinc-50 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+          >
+            Kembali
+          </Link>
+        </div>
 
-                  <span
-                    className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
-                      item.status
-                    )}`}
-                  >
-                    {getStatusLabel(item.status)}
-                  </span>
-                </div>
+        {/* =========================
+            STATISTIK DASHBOARD
+        ========================= */}
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
 
-                {/* Detail */}
-                <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-                  <div>
-                    <p className="text-xs text-zinc-500">
-                      Tanggal Mulai
-                    </p>
+          {/* Pending */}
+          <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-md shadow-zinc-300/50 transition-shadow hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30">
+            <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              Menunggu Persetujuan
+            </p>
 
-                    <p className="mt-1 text-sm font-semibold">
-                      {item.start_date || "-"}
-                    </p>
-                  </div>
+            <p className="mt-2 text-3xl font-black">
+              {pendingCount}
+            </p>
 
-                  <div>
-                    <p className="text-xs text-zinc-500">
-                      Tanggal Selesai
-                    </p>
-
-                    <p className="mt-1 text-sm font-semibold">
-                      {item.end_date || "-"}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-zinc-500">
-                      Jumlah
-                    </p>
-
-                    <p className="mt-1 text-sm font-semibold">
-                      {item.quantity || 0} Unit
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-zinc-500">
-                      Keperluan
-                    </p>
-
-                    <p className="mt-1 text-sm font-semibold">
-                      {item.keperluan || "-"}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Tombol Approval */}
-                {item.status === "pending" && (
-                  <div className="mt-5 flex gap-3 border-t border-zinc-200 pt-5 dark:border-zinc-800">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateStatus(item.id, "approved")
-                      }
-                      className="flex-1 rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
-                    >
-                      Setujui
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateStatus(item.id, "rejected")
-                      }
-                      className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700"
-                    >
-                      Tolak
-                    </button>
-                  </div>
-                )}
-
-                {/* Status jika sudah diproses */}
-                {item.status !== "pending" && (
-                  <div className="mt-5 border-t border-zinc-200 pt-4 dark:border-zinc-800">
-                    <p className="text-xs text-zinc-500">
-                      Status pengajuan sudah diproses oleh admin.
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
+            <p className="mt-1 text-xs text-zinc-500">
+              Pengajuan menunggu approval
+            </p>
           </div>
-        )}
+
+          {/* Approved */}
+          <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-md shadow-zinc-300/50 transition-shadow hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30">
+            <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              Disetujui
+            </p>
+
+            <p className="mt-2 text-3xl font-black">
+              {approvedCount}
+            </p>
+
+            <p className="mt-1 text-xs text-zinc-500">
+              Pengajuan telah disetujui
+            </p>
+          </div>
+
+          {/* Rejected */}
+          <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-md shadow-zinc-300/50 transition-shadow hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30">
+            <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              Ditolak
+            </p>
+
+            <p className="mt-2 text-3xl font-black">
+              {rejectedCount}
+            </p>
+
+            <p className="mt-1 text-xs text-zinc-500">
+              Pengajuan telah ditolak
+            </p>
+          </div>
+        </div>
+
+        {/* =========================
+            RINGKASAN PEMINJAMAN
+        ========================= */}
+        <div className="mt-10">
+          <div className="mb-5">
+            <h2 className="text-2xl font-black">
+              Ringkasan Peminjaman
+            </h2>
+
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              Jumlah peminjaman berdasarkan kategori alat.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+
+            {/* Kamera */}
+            <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-md shadow-zinc-300/50 transition-shadow hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30">
+              <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                Kamera
+              </p>
+
+              <p className="mt-2 text-3xl font-black">
+                {
+                  rentals.filter(
+                    (item) =>
+                      item.category?.toLowerCase() === "camera" ||
+                      item.category?.toLowerCase() === "kamera"
+                  ).length
+                }
+              </p>
+
+              <p className="mt-1 text-xs text-zinc-500">
+                Peminjaman
+              </p>
+            </div>
+
+            {/* Audio */}
+            <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-md shadow-zinc-300/50 transition-shadow hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30">
+              <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                Audio
+              </p>
+
+              <p className="mt-2 text-3xl font-black">
+                {
+                  rentals.filter(
+                    (item) =>
+                      item.category?.toLowerCase() === "audio"
+                  ).length
+                }
+              </p>
+
+              <p className="mt-1 text-xs text-zinc-500">
+                Peminjaman
+              </p>
+            </div>
+
+            {/* Tripod */}
+            <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-md shadow-zinc-300/50 transition-shadow hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30">
+              <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                Tripod
+              </p>
+
+              <p className="mt-2 text-3xl font-black">
+                {
+                  rentals.filter(
+                    (item) =>
+                      item.category?.toLowerCase() === "tripod"
+                  ).length
+                }
+              </p>
+
+              <p className="mt-1 text-xs text-zinc-500">
+                Peminjaman
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        {/* =========================
+            APPROVAL
+        ========================= */}
+        <div className="mt-10">
+          <div className="mb-5">
+            <h2 className="text-2xl font-black">
+              Approval Peminjaman
+            </h2>
+
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              Kelola pengajuan peminjaman alat dari pengguna.
+            </p>
+          </div>
+
+          {rentals.length === 0 ? (
+            <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-center shadow-md shadow-zinc-300/50 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Belum ada pengajuan peminjaman.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+
+              {rentals.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-md shadow-zinc-300/50 transition-shadow hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30"
+                >
+
+                  {/* Header Pengajuan */}
+                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <h3 className="text-lg font-bold">
+                        {item.equipment_name}
+                      </h3>
+
+                      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                        Pengaju: {item.user_name}
+                      </p>
+                    </div>
+
+                    <span
+                      className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
+                        item.status
+                      )}`}
+                    >
+                      {getStatusLabel(item.status)}
+                    </span>
+                  </div>
+
+                  {/* Detail */}
+                  <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+                    <div>
+                      <p className="text-xs text-zinc-500">
+                        Tanggal Mulai
+                      </p>
+
+                      <p className="mt-1 text-sm font-semibold">
+                        {item.start_date || "-"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-zinc-500">
+                        Tanggal Selesai
+                      </p>
+
+                      <p className="mt-1 text-sm font-semibold">
+                        {item.end_date || "-"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-zinc-500">
+                        Jumlah
+                      </p>
+
+                      <p className="mt-1 text-sm font-semibold">
+                        {item.quantity || 0} Unit
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-zinc-500">
+                        Keperluan
+                      </p>
+
+                      <p className="mt-1 text-sm font-semibold">
+                        {item.keperluan || "-"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Tombol Approval */}
+                  {item.status === "pending" && (
+                    <div className="mt-5 flex gap-3 border-t border-zinc-200 pt-5 dark:border-zinc-800">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateStatus(item.id, "approved")
+                        }
+                        className="flex-1 rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
+                      >
+                        Setujui
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateStatus(item.id, "rejected")
+                        }
+                        className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700"
+                      >
+                        Tolak
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Status jika sudah diproses */}
+                  {item.status !== "pending" && (
+                    <div className="mt-5 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+                      <p className="text-xs text-zinc-500">
+                        Status pengajuan sudah diproses oleh admin.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+            </div>
+          )}
+        </div>
+
       </div>
-    </div>
+    </main>
   );
 }
