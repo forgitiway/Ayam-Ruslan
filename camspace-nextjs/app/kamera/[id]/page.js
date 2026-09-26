@@ -44,30 +44,35 @@ export default async function DetailAlatPage({ params }) {
       <div className="min-h-screen bg-zinc-200 px-6 py-12 font-sans">
         <div className="mx-auto max-w-4xl">
           <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-zinc-200 md:p-8">
-            <div className="flex items-start gap-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <Link
+                  href="/kamera"
+                  className="text-2xl font-medium text-zinc-700 transition hover:text-zinc-950"
+                >
+                  ←
+                </Link>
+
+                <div>
+                  <h1 className="text-2xl font-bold text-zinc-900">
+                    Peralatan Tidak Ditemukan
+                  </h1>
+
+                  <p className="mt-2 text-sm text-zinc-500">
+                    Alat dengan ID "{resolvedParams.id}" tidak ada dalam
+                    katalog.
+                  </p>
+                </div>
+              </div>
+
               <Link
                 href="/kamera"
-                className="text-2xl font-medium text-zinc-700 transition hover:text-zinc-950"
+                className="shrink-0 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-semibold transition hover:bg-zinc-100"
               >
-                ←
+                Kembali
               </Link>
-
-              <div>
-                <h1 className="text-2xl font-bold text-zinc-900">
-                  Peralatan Tidak Ditemukan
-                </h1>
-
-            <p className="mt-2 text-sm text-zinc-500">
-              Alat dengan ID "{resolvedParams.id}" tidak ada dalam katalog.
-            </p>
+            </div>
           </div>
-
-          <Link
-            href="/kamera"
-            className="shrink-0 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-semibold transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-          >
-            Kembali
-          </Link>
         </div>
       </div>
     );
@@ -148,16 +153,37 @@ export default async function DetailAlatPage({ params }) {
                 {item.description || "Belum ada deskripsi alat."}
               </p>
 
-          <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-            Ketersediaan: {item.stock} Unit Siap Sewa
-          </p>
+              {/* STOK */}
+              <p
+                className={
+                  stokHabis
+                    ? "text-sm font-semibold text-red-600"
+                    : "text-sm font-semibold text-emerald-600"
+                }
+              >
+                {stokHabis
+                  ? "Ketersediaan: Stok Habis"
+                  : `Ketersediaan: ${item.stock} Unit Siap Sewa`}
+              </p>
 
-          <Link
-            href={`/peminjaman/ajukan?id=${item.id}`}
-            className="block w-full rounded-xl bg-indigo-600 py-3 text-center font-semibold text-white shadow-md shadow-indigo-500/20 transition hover:bg-indigo-500"
-          >
-            Ajukan Peminjaman Alat Ini
-          </Link>
+              {/* TOMBOL */}
+              {stokHabis ? (
+                <button
+                  disabled
+                  className="w-full cursor-not-allowed rounded-xl bg-zinc-300 py-3 font-semibold text-zinc-500"
+                >
+                  Stok Habis
+                </button>
+              ) : (
+                <Link
+                  href={`/peminjaman/ajukan?id=${item.id}`}
+                  className="block w-full rounded-xl bg-indigo-600 py-3 text-center font-semibold text-white shadow-md shadow-indigo-500/20 transition hover:bg-indigo-500"
+                >
+                  Ajukan Peminjaman Alat Ini
+                </Link>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
