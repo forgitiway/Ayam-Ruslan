@@ -16,20 +16,16 @@ export default function KatalogPage() {
   const [selectedCategory, setSelectedCategory] =
     useState("Semua");
 
+  // =========================
+  // FILTER DATA
+  // =========================
   const filteredKamera =
     selectedCategory === "Semua"
       ? dataKamera
       : dataKamera.filter((item) => {
-          if (selectedCategory === "Kamera") {
-            return (
-              item.category?.toLowerCase() ===
-              "camera"
-            );
-          }
-
           return (
-            item.category?.toLowerCase() ===
-            selectedCategory.toLowerCase()
+            item.category?.trim().toLowerCase() ===
+            selectedCategory.trim().toLowerCase()
           );
         });
 
@@ -55,7 +51,9 @@ export default function KatalogPage() {
           );
         }
 
-        // Ambil data alat dari API
+        // =========================
+        // AMBIL DATA DARI API
+        // =========================
         const response = await apiFetch(
           "/equipment",
           {
@@ -67,7 +65,12 @@ export default function KatalogPage() {
         const equipmentData =
           response.data || response;
 
-        setDataKamera(equipmentData);
+        // Pastikan data berupa array
+        setDataKamera(
+          Array.isArray(equipmentData)
+            ? equipmentData
+            : []
+        );
       } catch (error) {
         console.error(
           "Gagal mengambil data alat:",
@@ -143,15 +146,19 @@ export default function KatalogPage() {
     return (
       <main className="min-h-screen bg-zinc-100 px-6 py-12 dark:bg-zinc-950">
         <div className="mx-auto max-w-6xl">
+
           <h1 className="text-3xl font-black tracking-tight">
             Katalog Alat Multimedia
           </h1>
 
           <div className="mt-6 rounded-2xl border border-zinc-200 bg-white p-6 shadow-md shadow-zinc-300/40 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30">
+
             <p className="text-zinc-500 dark:text-zinc-400">
               Memuat data alat...
             </p>
+
           </div>
+
         </div>
       </main>
     );
@@ -164,11 +171,13 @@ export default function KatalogPage() {
     return (
       <main className="min-h-screen bg-zinc-100 px-6 py-12 dark:bg-zinc-950">
         <div className="mx-auto max-w-6xl">
+
           <h1 className="text-3xl font-black tracking-tight">
             Katalog Alat Multimedia
           </h1>
 
           <div className="mt-6 rounded-2xl border border-zinc-300 bg-white p-6 text-zinc-900 shadow-md shadow-zinc-300/40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-black/30">
+
             <p className="font-semibold">
               Gagal mengambil data alat
             </p>
@@ -176,14 +185,20 @@ export default function KatalogPage() {
             <p className="mt-1 text-sm">
               {errorMessage}
             </p>
+
           </div>
+
         </div>
       </main>
     );
   }
 
+  // =========================
+  // HALAMAN UTAMA
+  // =========================
   return (
     <main className="min-h-screen bg-zinc-100 px-6 py-12 dark:bg-zinc-950">
+
       <div className="mx-auto max-w-6xl space-y-8">
 
         {/* =========================
@@ -193,6 +208,7 @@ export default function KatalogPage() {
 
           {/* JUDUL */}
           <div>
+
             <h1 className="text-3xl font-black tracking-tight">
               Katalog Alat Multimedia
             </h1>
@@ -200,42 +216,45 @@ export default function KatalogPage() {
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
               Pilih alat multimedia sesuai kebutuhan produksi kamu.
             </p>
+
           </div>
 
           {/* =========================
-              FILTER + TOMBOL ADMIN
+              FILTER
           ========================= */}
           <div className="flex items-center gap-3">
 
-            {/* FILTER KATEGORI */}
             <div className="flex items-center gap-2">
+
               {[
                 "Semua",
                 "Kamera",
                 "Audio",
                 "Tripod",
               ].map((category) => (
+
                 <button
                   key={category}
                   type="button"
                   onClick={() =>
-                    setSelectedCategory(
-                      category
-                    )
+                    setSelectedCategory(category)
                   }
                   className={`rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition ${
-                    selectedCategory ===
-                    category
+                    selectedCategory === category
                       ? "bg-black text-white shadow-md dark:bg-white dark:text-black"
                       : "border border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
                   }`}
                 >
                   {category}
                 </button>
+
               ))}
+
             </div>
 
-            {/* TOMBOL TAMBAH ADMIN */}
+            {/* =========================
+                TAMBAH ALAT ADMIN
+            ========================= */}
             {isAdmin && (
               <Link
                 href="/kamera/tambah"
@@ -246,12 +265,14 @@ export default function KatalogPage() {
             )}
 
           </div>
+
         </div>
 
         {/* =========================
             JUMLAH ALAT
         ========================= */}
         <div className="flex items-center justify-between">
+
           <h2 className="text-xl font-bold">
             Daftar Alat
           </h2>
@@ -259,20 +280,26 @@ export default function KatalogPage() {
           <span className="text-sm text-zinc-500 dark:text-zinc-400">
             {filteredKamera.length} alat
           </span>
+
         </div>
 
         {/* =========================
             DATA KOSONG
         ========================= */}
         {filteredKamera.length === 0 ? (
+
           <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-center shadow-md shadow-zinc-300/40 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30">
+
             <p className="text-zinc-500 dark:text-zinc-400">
-              {selectedCategory ===
-              "Semua"
+
+              {selectedCategory === "Semua"
                 ? "Belum ada alat multimedia tersedia."
                 : `Belum ada alat dengan kategori ${selectedCategory}.`}
+
             </p>
+
           </div>
+
         ) : (
 
           /* =========================
@@ -281,6 +308,7 @@ export default function KatalogPage() {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
 
             {filteredKamera.map((item) => (
+
               <div
                 key={item.id}
                 className="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-5 shadow-md shadow-zinc-300/50 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30"
@@ -293,31 +321,40 @@ export default function KatalogPage() {
 
                   {/* GAMBAR */}
                   <div className="h-44 w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+
                     {item.image_url ? (
+
                       <img
                         src={item.image_url}
                         alt={item.name}
                         className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
                       />
+
                     ) : (
+
                       <div className="flex h-full items-center justify-center text-sm text-zinc-400">
                         Tidak ada gambar
                       </div>
+
                     )}
+
                   </div>
 
-                  {/* KATEGORI & STOK */}
+                  {/* =========================
+                      KATEGORI & STOK
+                  ========================= */}
                   <div className="mt-4 flex items-center justify-between">
+
                     <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                      {item.category?.toLowerCase() ===
-                      "camera"
-                        ? "Kamera"
-                        : item.category}
+
+                      {item.category}
+
                     </span>
 
                     <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700 shadow-sm">
                       Stok: {item.stock}
                     </span>
+
                   </div>
 
                   {/* NAMA ALAT */}
@@ -327,6 +364,7 @@ export default function KatalogPage() {
 
                   {/* HARGA */}
                   <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+
                     Rp
                     {Number(
                       item.price_per_day
@@ -334,6 +372,7 @@ export default function KatalogPage() {
                       "id-ID"
                     )}{" "}
                     / hari
+
                   </p>
 
                 </div>
@@ -342,18 +381,21 @@ export default function KatalogPage() {
                     TOMBOL USER
                 ========================= */}
                 {!isAdmin && (
+
                   <Link
                     href={`/kamera/${item.id}`}
                     className="mt-4 block rounded-xl bg-black py-2.5 text-center text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 hover:shadow-md dark:bg-white dark:text-black dark:hover:bg-zinc-200"
                   >
                     Lihat Detail & Sewa
                   </Link>
+
                 )}
 
                 {/* =========================
                     TOMBOL ADMIN
                 ========================= */}
                 {isAdmin && (
+
                   <div className="mt-3 grid grid-cols-2 gap-2">
 
                     {/* EDIT */}
@@ -379,14 +421,19 @@ export default function KatalogPage() {
                     </button>
 
                   </div>
+
                 )}
 
               </div>
+
             ))}
 
           </div>
+
         )}
+
       </div>
+
     </main>
   );
 }
