@@ -212,7 +212,10 @@ export default function KatalogPage() {
             <h1 className="text-3xl font-black tracking-tight">
               Katalog Alat Multimedia
             </h1>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 926dbc1cc94465fe8dc00687637f34e90f0a1f0e
           </div>
 
           {/* =========================
