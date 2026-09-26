@@ -46,21 +46,15 @@ export default function KatalogPage() {
         if (currentUser) {
           const userData = JSON.parse(currentUser);
 
-          setIsAdmin(
-            userData.role === "admin"
-          );
+          setIsAdmin(userData.role === "admin");
         }
 
         // =========================
         // AMBIL DATA DARI API
         // =========================
-        const response = await apiFetch(
-          "/equipment",
-          {
-            token:
-              process.env.NEXT_PUBLIC_DEV_TOKEN,
-          }
-        );
+        const response = await apiFetch("/equipment", {
+          token: process.env.NEXT_PUBLIC_DEV_TOKEN,
+        });
 
         const equipmentData =
           response.data || response;
@@ -146,19 +140,15 @@ export default function KatalogPage() {
     return (
       <main className="min-h-screen bg-zinc-100 px-6 py-12 dark:bg-zinc-950">
         <div className="mx-auto max-w-6xl">
-
           <h1 className="text-3xl font-black tracking-tight">
             Katalog Alat Multimedia
           </h1>
 
           <div className="mt-6 rounded-2xl border border-zinc-200 bg-white p-6 shadow-md shadow-zinc-300/40 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30">
-
             <p className="text-zinc-500 dark:text-zinc-400">
               Memuat data alat...
             </p>
-
           </div>
-
         </div>
       </main>
     );
@@ -171,13 +161,11 @@ export default function KatalogPage() {
     return (
       <main className="min-h-screen bg-zinc-100 px-6 py-12 dark:bg-zinc-950">
         <div className="mx-auto max-w-6xl">
-
           <h1 className="text-3xl font-black tracking-tight">
             Katalog Alat Multimedia
           </h1>
 
           <div className="mt-6 rounded-2xl border border-zinc-300 bg-white p-6 text-zinc-900 shadow-md shadow-zinc-300/40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-black/30">
-
             <p className="font-semibold">
               Gagal mengambil data alat
             </p>
@@ -185,9 +173,7 @@ export default function KatalogPage() {
             <p className="mt-1 text-sm">
               {errorMessage}
             </p>
-
           </div>
-
         </div>
       </main>
     );
@@ -198,7 +184,6 @@ export default function KatalogPage() {
   // =========================
   return (
     <main className="min-h-screen bg-zinc-100 px-6 py-12 dark:bg-zinc-950">
-
       <div className="mx-auto max-w-6xl space-y-8">
 
         {/* =========================
@@ -208,14 +193,9 @@ export default function KatalogPage() {
 
           {/* JUDUL */}
           <div>
-
             <h1 className="text-3xl font-black tracking-tight">
               Katalog Alat Multimedia
             </h1>
-<<<<<<< HEAD
-
-=======
->>>>>>> 926dbc1cc94465fe8dc00687637f34e90f0a1f0e
           </div>
 
           {/* =========================
@@ -224,14 +204,12 @@ export default function KatalogPage() {
           <div className="flex items-center gap-3">
 
             <div className="flex items-center gap-2">
-
               {[
                 "Semua",
                 "Kamera",
                 "Audio",
                 "Tripod",
               ].map((category) => (
-
                 <button
                   key={category}
                   type="button"
@@ -246,14 +224,10 @@ export default function KatalogPage() {
                 >
                   {category}
                 </button>
-
               ))}
-
             </div>
 
-            {/* =========================
-                TAMBAH ALAT ADMIN
-            ========================= */}
+            {/* TAMBAH ALAT ADMIN */}
             {isAdmin && (
               <Link
                 href="/kamera/tambah"
@@ -262,16 +236,13 @@ export default function KatalogPage() {
                 + Tambah Alat
               </Link>
             )}
-
           </div>
-
         </div>
 
         {/* =========================
             JUMLAH ALAT
         ========================= */}
         <div className="flex items-center justify-between">
-
           <h2 className="text-xl font-bold">
             Daftar Alat
           </h2>
@@ -279,26 +250,19 @@ export default function KatalogPage() {
           <span className="text-sm text-zinc-500 dark:text-zinc-400">
             {filteredKamera.length} alat
           </span>
-
         </div>
 
         {/* =========================
             DATA KOSONG
         ========================= */}
         {filteredKamera.length === 0 ? (
-
           <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-center shadow-md shadow-zinc-300/40 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30">
-
             <p className="text-zinc-500 dark:text-zinc-400">
-
               {selectedCategory === "Semua"
                 ? "Belum ada alat multimedia tersedia."
                 : `Belum ada alat dengan kategori ${selectedCategory}.`}
-
             </p>
-
           </div>
-
         ) : (
 
           /* =========================
@@ -307,7 +271,6 @@ export default function KatalogPage() {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
 
             {filteredKamera.map((item) => (
-
               <div
                 key={item.id}
                 className="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-5 shadow-md shadow-zinc-300/50 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30"
@@ -320,23 +283,17 @@ export default function KatalogPage() {
 
                   {/* GAMBAR */}
                   <div className="h-44 w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-
                     {item.image_url ? (
-
                       <img
                         src={item.image_url}
                         alt={item.name}
                         className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
                       />
-
                     ) : (
-
                       <div className="flex h-full items-center justify-center text-sm text-zinc-400">
                         Tidak ada gambar
                       </div>
-
                     )}
-
                   </div>
 
                   {/* =========================
@@ -348,23 +305,16 @@ export default function KatalogPage() {
                       {item.category}
                     </span>
 
-                    {/* =========================
-                        STOK
-                    ========================= */}
+                    {/* STOK */}
                     {Number(item.stock) === 0 ? (
-
                       <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 shadow-sm dark:bg-red-950/40 dark:text-red-400">
                         Stok: 0
                       </span>
-
                     ) : (
-
                       <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700 shadow-sm dark:bg-green-950/40 dark:text-green-400">
                         Stok: {item.stock}
                       </span>
-
                     )}
-
                   </div>
 
                   {/* NAMA ALAT */}
@@ -374,26 +324,19 @@ export default function KatalogPage() {
 
                   {/* HARGA */}
                   <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-
                     Rp
                     {Number(
                       item.price_per_day
-                    ).toLocaleString(
-                      "id-ID"
-                    )}{" "}
+                    ).toLocaleString("id-ID")}{" "}
                     / hari
-
                   </p>
-
                 </div>
 
                 {/* =========================
                     TOMBOL USER
                 ========================= */}
-                {!isAdmin && (
-
-                  Number(item.stock) === 0 ? (
-
+                {!isAdmin &&
+                  (Number(item.stock) === 0 ? (
                     <button
                       type="button"
                       disabled
@@ -401,25 +344,19 @@ export default function KatalogPage() {
                     >
                       Tidak Tersedia
                     </button>
-
                   ) : (
-
                     <Link
                       href={`/kamera/${item.id}`}
                       className="mt-4 block rounded-xl bg-black py-2.5 text-center text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 hover:shadow-md dark:bg-white dark:text-black dark:hover:bg-zinc-200"
                     >
                       Lihat Detail & Sewa
                     </Link>
-
-                  )
-
-                )}
+                  ))}
 
                 {/* =========================
                     TOMBOL ADMIN
                 ========================= */}
                 {isAdmin && (
-
                   <div className="mt-3 grid grid-cols-2 gap-2">
 
                     {/* EDIT */}
@@ -443,21 +380,13 @@ export default function KatalogPage() {
                     >
                       Hapus
                     </button>
-
                   </div>
-
                 )}
-
               </div>
-
             ))}
-
           </div>
-
         )}
-
       </div>
-
     </main>
   );
 }
