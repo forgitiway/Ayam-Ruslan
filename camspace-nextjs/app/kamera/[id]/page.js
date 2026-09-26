@@ -67,7 +67,7 @@ export default async function DetailAlatPage({ params }) {
 
               <Link
                 href="/kamera"
-                className="shrink-0 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-semibold transition hover:bg-zinc-100"
+                className="shrink-0 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-100"
               >
                 Kembali
               </Link>
@@ -157,8 +157,8 @@ export default async function DetailAlatPage({ params }) {
               <p
                 className={
                   stokHabis
-                    ? "text-sm font-semibold text-red-600"
-                    : "text-sm font-semibold text-emerald-600"
+                    ? "text-sm font-semibold text-zinc-500"
+                    : "text-sm font-semibold text-zinc-800"
                 }
               >
                 {stokHabis
@@ -177,7 +177,7 @@ export default async function DetailAlatPage({ params }) {
               ) : (
                 <Link
                   href={`/peminjaman/ajukan?id=${item.id}`}
-                  className="block w-full rounded-xl bg-indigo-600 py-3 text-center font-semibold text-white shadow-md shadow-indigo-500/20 transition hover:bg-indigo-500"
+                  className="block w-full rounded-xl bg-zinc-900 py-3 text-center font-semibold text-white shadow-md transition hover:bg-zinc-700"
                 >
                   Ajukan Peminjaman Alat Ini
                 </Link>
