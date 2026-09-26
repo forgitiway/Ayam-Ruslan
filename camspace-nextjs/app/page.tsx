@@ -121,6 +121,8 @@ export default function Home() {
             });
 
             console.log("DATA USER LANDING:", userResponse);
+            console.log("USER DATA:", userResponse.data);
+            console.log("ROLE USER:", userResponse.data?.role);
 
             const userData = userResponse.data;
 
@@ -236,13 +238,6 @@ export default function Home() {
                 className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200"
               >
                 Dashboard Admin
-              </Link>
-
-              <Link
-                href="/kamera"
-                className="rounded-xl border border-zinc-700 bg-zinc-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800"
-              >
-                Katalog Alat
               </Link>
 
             </div>
