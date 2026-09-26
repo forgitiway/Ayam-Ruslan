@@ -346,14 +346,25 @@ export default function KatalogPage() {
                   <div className="mt-4 flex items-center justify-between">
 
                     <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-
                       {item.category}
-
                     </span>
 
-                    <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700 shadow-sm">
-                      Stok: {item.stock}
-                    </span>
+                    {/* =========================
+                        STOK
+                    ========================= */}
+                    {Number(item.stock) === 0 ? (
+
+                      <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 shadow-sm dark:bg-red-950/40 dark:text-red-400">
+                        Stok: 0
+                      </span>
+
+                    ) : (
+
+                      <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700 shadow-sm dark:bg-green-950/40 dark:text-green-400">
+                        Stok: {item.stock}
+                      </span>
+
+                    )}
 
                   </div>
 
@@ -382,12 +393,26 @@ export default function KatalogPage() {
                 ========================= */}
                 {!isAdmin && (
 
-                  <Link
-                    href={`/kamera/${item.id}`}
-                    className="mt-4 block rounded-xl bg-black py-2.5 text-center text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 hover:shadow-md dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-                  >
-                    Lihat Detail & Sewa
-                  </Link>
+                  Number(item.stock) === 0 ? (
+
+                    <button
+                      type="button"
+                      disabled
+                      className="mt-4 block w-full cursor-not-allowed rounded-xl bg-red-100 py-2.5 text-center text-sm font-semibold text-red-600 dark:bg-red-950/30 dark:text-red-400"
+                    >
+                      Tidak Tersedia
+                    </button>
+
+                  ) : (
+
+                    <Link
+                      href={`/kamera/${item.id}`}
+                      className="mt-4 block rounded-xl bg-black py-2.5 text-center text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 hover:shadow-md dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                    >
+                      Lihat Detail & Sewa
+                    </Link>
+
+                  )
 
                 )}
 
