@@ -45,8 +45,8 @@ export default async function DetailAlatPage({ params }) {
             </h1>
 
             <p className="mt-2 text-sm text-zinc-500">
-              Alat dengan ID "{resolvedParams.id}" tidak ada dalam katalog.
-            </p>
+  Alat dengan ID &quot;{resolvedParams.id}&quot; tidak ada dalam katalog.
+</p>
           </div>
 
           <Link
@@ -59,6 +59,12 @@ export default async function DetailAlatPage({ params }) {
       </div>
     );
   }
+
+  // =====================================================
+  // CEK STOK
+  // =====================================================
+
+  const stokHabis = Number(item.stock) <= 0;
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-12 font-sans">
@@ -117,16 +123,39 @@ export default async function DetailAlatPage({ params }) {
             {item.description || "Belum ada deskripsi alat."}
           </p>
 
-          <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-            Ketersediaan: {item.stock} Unit Siap Sewa
+          <p
+            className={`text-sm font-semibold ${
+              stokHabis
+                ? "text-red-600 dark:text-red-400"
+                : "text-emerald-600 dark:text-emerald-400"
+            }`}
+          >
+            {stokHabis
+              ? "Ketersediaan: Stok Habis"
+              : `Ketersediaan: ${item.stock} Unit Siap Sewa`}
           </p>
 
-          <Link
-            href={`/peminjaman/ajukan?id=${item.id}`}
-            className="block w-full rounded-xl bg-indigo-600 py-3 text-center font-semibold text-white shadow-md shadow-indigo-500/20 transition hover:bg-indigo-500"
-          >
-            Ajukan Peminjaman Alat Ini
-          </Link>
+          {/* =====================================================
+              JIKA STOK MASIH ADA → BISA AJUKAN
+              JIKA STOK 0 → TIDAK BISA AJUKAN
+          ===================================================== */}
+
+          {stokHabis ? (
+            <button
+              type="button"
+              disabled
+              className="block w-full rounded-xl bg-indigo-600 py-3 text-center font-semibold text-white opacity-50"
+            >
+              Stok Habis
+            </button>
+          ) : (
+            <Link
+              href={`/peminjaman/ajukan?id=${item.id}`}
+              className="block w-full rounded-xl bg-indigo-600 py-3 text-center font-semibold text-white shadow-md shadow-indigo-500/20 transition hover:bg-indigo-500"
+            >
+              Ajukan Peminjaman Alat Ini
+            </Link>
+          )}
         </div>
       </div>
     </div>

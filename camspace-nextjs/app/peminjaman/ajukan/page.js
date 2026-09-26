@@ -110,6 +110,16 @@ export default function AjukanPeminjamanPage() {
         }
 
         setEquipment(selected);
+
+        // ==================================================
+        // JIKA STOK 0, TIDAK BOLEH MELAKUKAN PEMINJAMAN
+        // ==================================================
+
+        if (Number(selected.stock) <= 0) {
+          setError(
+            "Alat ini sedang tidak tersedia karena stok habis."
+          );
+        }
       } catch (err) {
         console.error(
           "ERROR LOAD DATA:",
@@ -212,6 +222,34 @@ export default function AjukanPeminjamanPage() {
     if (Number(quantity) < 1) {
       setError(
         "Jumlah peminjaman minimal 1 unit."
+      );
+      return;
+    }
+
+    // ==================================================
+    // VALIDASI JUMLAH TIDAK BOLEH MELEBIHI STOK
+    // ==================================================
+
+    if (
+      equipment &&
+      Number(quantity) > Number(equipment.stock)
+    ) {
+      setError(
+        `Jumlah peminjaman tidak boleh melebihi stok yang tersedia (${equipment.stock} unit).`
+      );
+      return;
+    }
+
+    // ==================================================
+    // VALIDASI STOK HABIS
+    // ==================================================
+
+    if (
+      equipment &&
+      Number(equipment.stock) <= 0
+    ) {
+      setError(
+        "Alat ini sedang tidak tersedia karena stok habis."
       );
       return;
     }
@@ -473,41 +511,36 @@ export default function AjukanPeminjamanPage() {
           </div>
 
           {/* JUMLAH */}
-          <div>
-            <label className="block text-sm font-medium">
-              Jumlah
-            </label>
+<div>
+  <label className="block text-sm font-medium">
+    Jumlah
+  </label>
 
-            <input
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={(e) =>
-                setQuantity(
-                  e.target.value
-                )
-              }
-              className="mt-1 w-full rounded-xl border px-4 py-2"
-            />
-          </div>
+  <input
+    type="number"
+    min="1"
+    max={
+      equipment
+        ? Number(equipment.stock)
+        : undefined
+    }
+    value={quantity}
+    onChange={(e) => {
+      const nilai = Number(e.target.value);
 
-          {/* KEPERLUAN */}
-          <div>
-            <label className="block text-sm font-medium">
-              Keperluan
-            </label>
+      if (
+        equipment &&
+        nilai > Number(equipment.stock)
+      ) {
+        setQuantity(Number(equipment.stock));
+        return;
+      }
 
-            <textarea
-              rows={4}
-              value={keperluan}
-              onChange={(e) =>
-                setKeperluan(
-                  e.target.value
-                )
-              }
-              className="mt-1 w-full rounded-xl border px-4 py-2"
-            />
-          </div>
+      setQuantity(e.target.value);
+    }}
+    className="mt-1 w-full rounded-xl border px-4 py-2"
+  />
+</div>
 
           {/* RINGKASAN HARGA */}
           {equipment &&
@@ -582,7 +615,11 @@ export default function AjukanPeminjamanPage() {
           {/* SUBMIT */}
           <button
             type="submit"
-            disabled={loadingSubmit}
+            disabled={
+              loadingSubmit ||
+              !equipment ||
+              Number(equipment.stock) <= 0
+            }
             className="w-full rounded-xl bg-black py-3 font-semibold text-white hover:bg-zinc-800 disabled:opacity-50"
           >
             {loadingSubmit
