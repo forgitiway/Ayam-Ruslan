@@ -375,7 +375,7 @@ export default function AjukanPeminjamanPage() {
       // =============================
 
       setTimeout(() => {
-        router.push("/status");
+        router.push("/peminjaman");
       }, 1200);
     } catch (err) {
       console.error(
