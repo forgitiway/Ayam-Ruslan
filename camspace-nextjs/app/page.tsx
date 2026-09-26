@@ -24,90 +24,27 @@ const gambarAlat: Record<number, string> = {
   3: "/images/tripod-manfrotto.jpg",
 };
 
-const extraEquipment: Equipment[] = [
-  {
-    id: 101,
-    name: "GoPro Hero 11 Black",
-    category: "KAMERA",
-    brand: "GoPro",
-    description: null,
-    price_per_day: 100000,
-    stock: 4,
-    image_url:
-      "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&q=80",
-    specifications: null,
-    status: "available",
-    created_at: "",
-  },
-  {
-    id: 102,
-    name: "Lensa Canon 50mm f/1.8",
-    category: "LENSA",
-    brand: "Canon",
-    description: null,
-    price_per_day: 75000,
-    stock: 5,
-    image_url:
-      "https://images.unsplash.com/photo-1516724562728-afc824a36e84?w=800&q=80",
-    specifications: null,
-    status: "available",
-    created_at: "",
-  },
-  {
-    id: 103,
-    name: "Sony FE 16-35mm f/2.8 GM",
-    category: "LENSA",
-    brand: "Sony",
-    description: null,
-    price_per_day: 120000,
-    stock: 3,
-    image_url:
-      "https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?w=800&q=80",
-    specifications: null,
-    status: "available",
-    created_at: "",
-  },
-  {
-    id: 104,
-    name: "Drone DJI Mini 3",
-    category: "AKSESORIS",
-    brand: "DJI",
-    description: null,
-    price_per_day: 200000,
-    stock: 2,
-    image_url:
-      "https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&q=80",
-    specifications: null,
-    status: "available",
-    created_at: "",
-  },
-  {
-    id: 105,
-    name: "Mic Rode VideoMic GO",
-    category: "AKSESORIS",
-    brand: "Rode",
-    description: null,
-    price_per_day: 50000,
-    stock: 6,
-    image_url:
-      "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&q=80",
-    specifications: null,
-    status: "available",
-    created_at: "",
-  },
-];
-
 export default function Home() {
   const [role, setRole] = useState<string | null>(null);
   const [checkingRole, setCheckingRole] = useState(true);
 
   const [dataKamera, setDataKamera] = useState<Equipment[]>([]);
-  const [loadingEquipment, setLoadingEquipment] = useState(false);
+  const [loadingEquipment, setLoadingEquipment] =
+    useState(false);
+
+  // =========================================
+  // SEARCH
+  // =========================================
+
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [searchResults, setSearchResults] =
+    useState<Equipment[] | null>(null);
 
   useEffect(() => {
     async function loadHome() {
       try {
-        const token = localStorage.getItem("camspace_token");
+        const token =
+          localStorage.getItem("camspace_token");
 
         // =========================================
         // 1. CEK USER YANG SEDANG LOGIN
@@ -116,12 +53,14 @@ export default function Home() {
         if (token) {
           try {
             // Cek user yang tersimpan di localStorage
-            const currentUser = localStorage.getItem(
-              "camspace_current_user"
-            );
+            const currentUser =
+              localStorage.getItem(
+                "camspace_current_user"
+              );
 
             if (currentUser) {
-              const userData = JSON.parse(currentUser);
+              const userData =
+                JSON.parse(currentUser);
 
               // Kalau Admin
               if (userData?.role === "admin") {
@@ -132,10 +71,11 @@ export default function Home() {
             }
 
             // Kalau bukan admin, cek ke API
-            const userResponse = await apiFetch("/me", {
-              method: "GET",
-              token: token,
-            });
+            const userResponse =
+              await apiFetch("/me", {
+                method: "GET",
+                token: token,
+              });
 
             console.log(
               "DATA USER LANDING:",
@@ -152,7 +92,8 @@ export default function Home() {
               userResponse.data?.role
             );
 
-            const userData = userResponse.data;
+            const userData =
+              userResponse.data;
 
             if (userData?.role) {
               setRole(userData.role);
@@ -172,30 +113,36 @@ export default function Home() {
               error
             );
 
-            localStorage.removeItem("camspace_token");
+            localStorage.removeItem(
+              "camspace_token"
+            );
+
             setRole(null);
           }
         }
 
         // =========================================
-        // 2. AMBIL DATA ALAT UNTUK USER / PENGUNJUNG
+        // 2. AMBIL DATA ALAT DARI API PANITIA
         // =========================================
 
         setLoadingEquipment(true);
 
-        const response = await apiFetch("/equipment", {
-          method: "GET",
-          token: process.env.NEXT_PUBLIC_DEV_TOKEN,
-        });
+        const response = await apiFetch(
+          "/equipment",
+          {
+            method: "GET",
+            token:
+              process.env.NEXT_PUBLIC_DEV_TOKEN,
+          }
+        );
 
         const apiData = Array.isArray(response)
           ? response
           : response.data || [];
 
-        setDataKamera([
-          ...apiData,
-          ...extraEquipment,
-        ]);
+        // HANYA DATA DARI API
+        // Tidak ada extraEquipment lagi
+        setDataKamera(apiData);
       } catch (error) {
         console.error(
           "Gagal mengambil data alat:",
@@ -211,7 +158,59 @@ export default function Home() {
   }, []);
 
   // =========================================
-  // 3. LOADING CEK ROLE
+  // 3. FUNGSI SEARCH
+  // =========================================
+
+  function handleSearch(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+
+    const keyword =
+      searchKeyword.trim().toLowerCase();
+
+    // Kalau search kosong,
+    // tampilkan kembali semua produk
+    if (!keyword) {
+      setSearchResults(null);
+      return;
+    }
+
+    const hasil = dataKamera.filter((item) => {
+      const nama =
+        item.name?.toLowerCase() || "";
+
+      const kategori =
+        item.category?.toLowerCase() || "";
+
+      const merek =
+        item.brand?.toLowerCase() || "";
+
+      const deskripsi =
+        item.description?.toLowerCase() || "";
+
+      return (
+        nama.includes(keyword) ||
+        kategori.includes(keyword) ||
+        merek.includes(keyword) ||
+        deskripsi.includes(keyword)
+      );
+    });
+
+    setSearchResults(hasil);
+  }
+
+  // =========================================
+  // 4. DATA YANG DITAMPILKAN
+  // =========================================
+
+  const alatYangDitampilkan =
+    searchResults !== null
+      ? searchResults
+      : dataKamera;
+
+  // =========================================
+  // 5. LOADING CEK ROLE
   // =========================================
 
   if (checkingRole) {
@@ -225,7 +224,7 @@ export default function Home() {
   }
 
   // =========================================
-  // 4. LANDING PAGE ADMIN
+  // 6. LANDING PAGE ADMIN
   // HERO SAJA
   // =========================================
 
@@ -270,7 +269,7 @@ export default function Home() {
   }
 
   // =========================================
-  // 5. LANDING PAGE USER / PENGUNJUNG
+  // 7. LANDING PAGE USER / PENGUNJUNG
   // =========================================
 
   return (
@@ -311,22 +310,31 @@ export default function Home() {
 
           <div className="mx-auto max-w-xl pt-4">
 
-            <div className="flex flex-col gap-2 rounded-2xl border border-zinc-800 bg-zinc-900 p-2 sm:flex-row">
+            <form
+              onSubmit={handleSearch}
+              className="flex flex-col gap-2 rounded-2xl border border-zinc-800 bg-zinc-900 p-2 sm:flex-row"
+            >
 
               <input
                 type="text"
+                value={searchKeyword}
+                onChange={(event) =>
+                  setSearchKeyword(
+                    event.target.value
+                  )
+                }
                 placeholder="Cari kamera, lensa, atau lighting..."
                 className="w-full bg-transparent px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none"
               />
 
-              <Link
-                href="/kamera"
+              <button
+                type="submit"
                 className="rounded-xl bg-white px-6 py-3 text-center text-sm font-semibold text-black transition hover:bg-zinc-200"
               >
                 Cari Alat
-              </Link>
+              </button>
 
-            </div>
+            </form>
 
           </div>
 
@@ -347,11 +355,15 @@ export default function Home() {
           <div>
 
             <h2 className="text-2xl font-bold tracking-tight">
-              Kamera & Alat Populer
+              {searchResults !== null
+                ? "Hasil Pencarian"
+                : "Kamera & Alat Populer"}
             </h2>
 
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Pilihan alat untuk kebutuhan multimedia
+              {searchResults !== null
+                ? `Hasil pencarian untuk "${searchKeyword}"`
+                : "Pilihan alat untuk kebutuhan multimedia"}
             </p>
 
           </div>
@@ -377,7 +389,23 @@ export default function Home() {
 
           </div>
 
-        ) : dataKamera.length === 0 ? (
+        ) : searchResults !== null &&
+          searchResults.length === 0 ? (
+
+          /* =========================================
+             SEARCH TIDAK DITEMUKAN
+          ========================================= */
+
+          <div className="rounded-2xl border border-zinc-200 bg-white p-10 text-center dark:border-zinc-800 dark:bg-zinc-900">
+
+            <p className="text-sm text-zinc-500">
+              Alat yang kamu cari tidak ditemukan
+              di katalog CamSpace.
+            </p>
+
+          </div>
+
+        ) : alatYangDitampilkan.length === 0 ? (
 
           /* EMPTY STATE */
 
@@ -398,11 +426,13 @@ export default function Home() {
 
         ) : (
 
-          /* PRODUCT GRID */
+          /* =========================================
+             PRODUCT GRID
+          ========================================= */
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
 
-            {dataKamera.map((item) => (
+            {alatYangDitampilkan.map((item) => (
 
               <div
                 key={item.id}
