@@ -159,9 +159,9 @@ export default function Navbar() {
                 {user?.role === "admin" && (
                   <Link
                     href="/admin/approval"
-                    className="font-bold text-indigo-600 hover:text-indigo-500"
+                    className="hover:text-zinc-900 dark:hover:text-zinc-100"
                   >
-                    Approval
+                    Dashboard
                   </Link>
                 )}
               </>
