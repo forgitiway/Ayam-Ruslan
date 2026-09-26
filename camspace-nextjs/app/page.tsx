@@ -107,24 +107,58 @@ export default function Home() {
   useEffect(() => {
     async function loadHome() {
       try {
-        const token = localStorage.getItem("camspace_token");
+        const token =
+          localStorage.getItem("camspace_token");
 
         // =========================================
-        // 1. CEK USER YANG SEDANG LOGIN
+        // CEK USER YANG SEDANG LOGIN
         // =========================================
 
         if (token) {
           try {
-            const userResponse = await apiFetch("/me", {
-              method: "GET",
-              token: token,
-            });
+            // CEK ADMIN LOKAL
+            const currentUser =
+              localStorage.getItem(
+                "camspace_current_user"
+              );
 
-            console.log("DATA USER LANDING:", userResponse);
-            console.log("USER DATA:", userResponse.data);
-            console.log("ROLE USER:", userResponse.data?.role);
+            if (currentUser) {
+              const userData =
+                JSON.parse(currentUser);
 
-            const userData = userResponse.data;
+              if (userData?.role === "admin") {
+                setRole("admin");
+                setCheckingRole(false);
+                return;
+              }
+            }
+
+            // CEK USER DARI API
+            const userResponse = await apiFetch(
+              "/me",
+              {
+                method: "GET",
+                token: token,
+              }
+            );
+
+            console.log(
+              "DATA USER LANDING:",
+              userResponse
+            );
+
+            console.log(
+              "USER DATA:",
+              userResponse.data
+            );
+
+            console.log(
+              "ROLE USER:",
+              userResponse.data?.role
+            );
+
+            const userData =
+              userResponse.data;
 
             if (userData?.role) {
               setRole(userData.role);
@@ -132,10 +166,7 @@ export default function Home() {
               setRole("user");
             }
 
-            // =========================================
-            // 2. KALAU ADMIN, TIDAK PERLU AMBIL PRODUK
-            // =========================================
-
+            // Kalau Admin, hanya tampilkan hero
             if (userData?.role === "admin") {
               setCheckingRole(false);
               return;
@@ -146,23 +177,28 @@ export default function Home() {
               error
             );
 
-            // Kalau token bermasalah,
-            // anggap sebagai user biasa / pengunjung
-            localStorage.removeItem("camspace_token");
+            localStorage.removeItem(
+              "camspace_token"
+            );
+
             setRole(null);
           }
         }
 
         // =========================================
-        // 3. AMBIL DATA ALAT UNTUK USER / PENGUNJUNG
+        // AMBIL DATA ALAT UNTUK USER / PENGUNJUNG
         // =========================================
 
         setLoadingEquipment(true);
 
-        const response = await apiFetch("/equipment", {
-          method: "GET",
-          token: process.env.NEXT_PUBLIC_DEV_TOKEN,
-        });
+        const response = await apiFetch(
+          "/equipment",
+          {
+            method: "GET",
+            token:
+              process.env.NEXT_PUBLIC_DEV_TOKEN,
+          }
+        );
 
         const apiData = Array.isArray(response)
           ? response
@@ -187,12 +223,12 @@ export default function Home() {
   }, []);
 
   // =========================================
-  // LOADING CEK ROLE
+  // LOADING
   // =========================================
 
   if (checkingRole) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-black text-white">
         <p className="text-zinc-400">
           Memuat CamSpace...
         </p>
@@ -201,22 +237,23 @@ export default function Home() {
   }
 
   // =========================================
-  // LANDING PAGE KHUSUS ADMIN
+  // LANDING PAGE ADMIN
+  // HERO SAJA
   // =========================================
 
   if (role === "admin") {
     return (
-      <div className="min-h-screen bg-black text-white font-sans">
+      <div className="min-h-screen bg-black font-sans text-white">
 
-        {/* HERO ADMIN */}
         <section className="relative flex min-h-[calc(100vh-70px)] items-center justify-center overflow-hidden px-6">
+
           <div className="mx-auto max-w-4xl text-center">
 
-            <span className="inline-block rounded-full bg-zinc-900 px-4 py-1.5 text-xs font-semibold text-zinc-300 border border-zinc-800">
+            <span className="inline-block rounded-full border border-zinc-800 bg-zinc-900 px-4 py-1.5 text-xs font-semibold text-zinc-300">
               Admin CamSpace
             </span>
 
-            <h1 className="mt-6 text-4xl sm:text-6xl font-black tracking-tight leading-tight">
+            <h1 className="mt-6 text-4xl font-black leading-tight tracking-tight sm:text-6xl">
               Selamat Datang di
               <br />
 
@@ -225,16 +262,16 @@ export default function Home() {
               </span>
             </h1>
 
-            <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg text-zinc-400">
-              Kelola alat dan pantau aktivitas peminjaman
-              CamSpace melalui halaman administrasi.
+            <p className="mx-auto mt-6 max-w-2xl text-base text-zinc-400 sm:text-lg">
+              Kelola alat dan pantau aktivitas
+              peminjaman CamSpace melalui halaman
+              administrasi.
             </p>
 
-            {/* TOMBOL ADMIN */}
-            <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
+            <div className="mt-8 flex justify-center">
 
               <Link
-                href="/dashboard"
+                href="/admin/dashboard"
                 className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200"
               >
                 Dashboard Admin
@@ -243,6 +280,7 @@ export default function Home() {
             </div>
 
           </div>
+
         </section>
 
       </div>
@@ -254,21 +292,19 @@ export default function Home() {
   // =========================================
 
   return (
-    <div className="min-h-screen bg-zinc-200 font-sans text-zinc-900 dark:bg-black dark:text-zinc-100">
+    <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900 dark:bg-black dark:text-zinc-100">
 
-      {/* =========================================
-          HERO
-      ========================================= */}
+      {/* HERO */}
 
       <section className="relative overflow-hidden bg-black px-6 py-20 text-white">
 
-        <div className="mx-auto max-w-5xl text-center space-y-6">
+        <div className="mx-auto max-w-5xl space-y-6 text-center">
 
-          <span className="inline-block rounded-full bg-zinc-900 px-4 py-1.5 text-xs font-semibold text-zinc-300 border border-zinc-800">
+          <span className="inline-block rounded-full border border-zinc-800 bg-zinc-900 px-4 py-1.5 text-xs font-semibold text-zinc-300">
             Platform Sewa Alat Konten & Fotografi
           </span>
 
-          <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-tight">
+          <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-6xl">
 
             Let&apos;s Create Beautiful Work
 
@@ -280,17 +316,18 @@ export default function Home() {
 
           </h1>
 
-          <p className="mx-auto max-w-2xl text-base sm:text-lg text-zinc-400">
-            Sewa kamera DSLR, Mirrorless, Digicam, Lensa,
-            Lighting, dan Tripod untuk keperluan tugas,
-            pembuatan konten, hingga dokumentasi acara.
+          <p className="mx-auto max-w-2xl text-base text-zinc-400 sm:text-lg">
+            Sewa kamera DSLR, Mirrorless, Digicam,
+            Lensa, Lighting, dan Tripod untuk
+            keperluan tugas, pembuatan konten,
+            hingga dokumentasi acara.
           </p>
 
           {/* SEARCH */}
 
           <div className="mx-auto max-w-xl pt-4">
 
-            <div className="flex flex-col sm:flex-row gap-2 rounded-2xl bg-zinc-900 p-2 border border-zinc-800">
+            <div className="flex flex-col gap-2 rounded-2xl border border-zinc-800 bg-zinc-900 p-2 sm:flex-row">
 
               <input
                 type="text"
@@ -313,15 +350,11 @@ export default function Home() {
 
       </section>
 
-      {/* =========================================
-          PRODUK POPULER
-      ========================================= */}
+      {/* PRODUK POPULER */}
 
       <section className="mx-auto max-w-6xl px-6 py-16">
 
-        {/* HEADER */}
-
-        <div className="flex items-center justify-between mb-8">
+        <div className="mb-8 flex items-center justify-between">
 
           <div>
 
@@ -377,17 +410,15 @@ export default function Home() {
 
         ) : (
 
-          /* =========================================
-             PRODUCT GRID
-          ========================================= */
+          /* PRODUCT GRID */
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
 
             {dataKamera.map((item) => (
 
               <div
                 key={item.id}
-                className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 flex flex-col justify-between"
+                className="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
               >
 
                 <div>
@@ -422,7 +453,7 @@ export default function Home() {
 
                   <div className="mt-4 flex items-center justify-between">
 
-                    <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                       {item.category}
                     </span>
 
@@ -434,13 +465,13 @@ export default function Home() {
 
                   {/* NAME */}
 
-                  <h3 className="text-lg font-bold mt-1">
+                  <h3 className="mt-1 text-lg font-bold">
                     {item.name}
                   </h3>
 
                   {/* PRICE */}
 
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+                  <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                     Rp
                     {Number(
                       item.price_per_day
@@ -454,7 +485,7 @@ export default function Home() {
 
                 <Link
                   href={`/kamera/${item.id}`}
-                  className="mt-4 block text-center rounded-xl bg-black py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                  className="mt-4 block rounded-xl bg-black py-2.5 text-center text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
                 >
                   Lihat Detail & Sewa
                 </Link>

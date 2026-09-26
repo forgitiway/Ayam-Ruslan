@@ -26,7 +26,9 @@ export default function LoginPage() {
     try {
       setLoading(true);
 
+      // =========================
       // LOGIN ADMIN
+      // =========================
       if (
         email === "admin@camspace.com" &&
         password === "admin123"
@@ -48,16 +50,18 @@ export default function LoginPage() {
           "admin-token"
         );
 
-        // Beri tahu Navbar bahwa admin sudah login
-        window.dispatchEvent(new Event("camspace-login"));
+        window.dispatchEvent(
+          new Event("camspace-login")
+        );
 
-        // Masuk ke halaman approval
-        router.push("/admin/approval");
+        router.push("/");
 
         return;
       }
 
+      // =========================
       // LOGIN USER BIASA
+      // =========================
       const response = await apiFetch("/login", {
         method: "POST",
         body: {
@@ -68,7 +72,6 @@ export default function LoginPage() {
 
       console.log("HASIL LOGIN:", response);
 
-      // Ambil token dari berbagai kemungkinan struktur response API
       const token =
         response.token ||
         response.access_token ||
@@ -81,19 +84,22 @@ export default function LoginPage() {
         );
       }
 
-      // Simpan token
-      localStorage.setItem("camspace_token", token);
+      localStorage.setItem(
+        "camspace_token",
+        token
+      );
 
-      // Beri tahu Navbar bahwa login berhasil
-      window.dispatchEvent(new Event("camspace-login"));
+      window.dispatchEvent(
+        new Event("camspace-login")
+      );
 
-      // Masuk ke dashboard
       router.push("/dashboard");
     } catch (error) {
       console.error("ERROR LOGIN:", error);
 
       setError(
-        error.message || "Email atau password tidak valid."
+        error.message ||
+          "Email atau password tidak valid."
       );
     } finally {
       setLoading(false);
@@ -118,7 +124,7 @@ export default function LoginPage() {
         {/* FORM */}
         <form
           onSubmit={handleSubmit}
-          className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 space-y-4"
+          className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
         >
 
           {/* EMAIL */}
@@ -130,7 +136,9 @@ export default function LoginPage() {
             <input
               type="email"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) =>
+                setEmail(event.target.value)
+              }
               placeholder="nama@email.com"
               className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
             />
@@ -145,7 +153,9 @@ export default function LoginPage() {
             <input
               type="password"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) =>
+                setPassword(event.target.value)
+              }
               placeholder="••••••••"
               className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
             />
@@ -164,7 +174,9 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full rounded-xl bg-black py-3 font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
           >
-            {loading ? "Memproses..." : "Masuk"}
+            {loading
+              ? "Memproses..."
+              : "Masuk"}
           </button>
         </form>
 
