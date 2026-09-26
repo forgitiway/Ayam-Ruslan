@@ -57,16 +57,27 @@ export default async function DetailAlatPage({ params }) {
                   Peralatan Tidak Ditemukan
                 </h1>
 
-                <p className="mt-2 text-sm text-zinc-500">
-                  Alat dengan ID "{resolvedParams.id}" tidak ada dalam katalog.
-                </p>
-              </div>
-            </div>
+            <p className="mt-2 text-sm text-zinc-500">
+              Alat dengan ID "{resolvedParams.id}" tidak ada dalam katalog.
+            </p>
           </div>
+
+          <Link
+            href="/kamera"
+            className="shrink-0 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-semibold transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+          >
+            Kembali
+          </Link>
         </div>
       </div>
     );
   }
+
+  // =====================================================
+  // CEK STOK
+  // =====================================================
+
+  const stokHabis = Number(item.stock) <= 0;
 
   return (
     <div className="min-h-screen bg-zinc-200 px-6 py-12 font-sans">
@@ -137,22 +148,16 @@ export default async function DetailAlatPage({ params }) {
                 {item.description || "Belum ada deskripsi alat."}
               </p>
 
-              {/* STOK */}
-              <p className="text-sm font-semibold text-zinc-700">
-                Ketersediaan: {item.stock} Unit Siap Sewa
-              </p>
+          <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+            Ketersediaan: {item.stock} Unit Siap Sewa
+          </p>
 
-              {/* TOMBOL AJUKAN */}
-              <Link
-                href={`/peminjaman/ajukan?id=${item.id}`}
-                className="block w-full rounded-xl bg-zinc-900 py-3 text-center font-semibold text-white transition hover:bg-zinc-700"
-              >
-                Ajukan Peminjaman Alat Ini
-              </Link>
-
-            </div>
-          </div>
-
+          <Link
+            href={`/peminjaman/ajukan?id=${item.id}`}
+            className="block w-full rounded-xl bg-indigo-600 py-3 text-center font-semibold text-white shadow-md shadow-indigo-500/20 transition hover:bg-indigo-500"
+          >
+            Ajukan Peminjaman Alat Ini
+          </Link>
         </div>
       </div>
     </div>
