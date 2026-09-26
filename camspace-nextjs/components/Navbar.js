@@ -214,10 +214,17 @@ export default function Navbar() {
               !isAdmin && (
                 <>
                   <Link
+<<<<<<< HEAD
                     href="/peminjaman"
                     className="hover:text-zinc-900 dark:hover:text-zinc-100"
                   >
                     Riwayat
+=======
+                    href="/admin/approval"
+                    className="hover:text-zinc-900 dark:hover:text-zinc-100"
+                  >
+                    Dashboard
+>>>>>>> d22cdb59a9b7874df70d99ed7f9e6808d1d2c0bc
                   </Link>
 
                   <Link
