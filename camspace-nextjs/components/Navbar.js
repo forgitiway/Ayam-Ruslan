@@ -217,14 +217,7 @@ export default function Navbar() {
                     href="/peminjaman"
                     className="hover:text-zinc-900 dark:hover:text-zinc-100"
                   >
-                    Riwayat
-                  </Link>
-
-                  <Link
-                    href="/status"
-                    className="hover:text-zinc-900 dark:hover:text-zinc-100"
-                  >
-                    Status
+                    Riwayat Rental
                   </Link>
 
                   <Link
