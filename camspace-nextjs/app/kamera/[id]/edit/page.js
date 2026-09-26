@@ -231,9 +231,9 @@ export default function EditAlatPage() {
 
         <Link
           href="/kamera"
-          className="inline-block rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white"
+          className="inline-block rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-semibold transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
         >
-          Kembali ke Katalog
+        Kembali
         </Link>
       </div>
     );
@@ -241,21 +241,23 @@ export default function EditAlatPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
-      <div className="mb-8">
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black">
+            Edit Alat
+          </h1>
+
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Ubah informasi alat multimedia.
+          </p>
+        </div>
+
         <Link
           href="/kamera"
-          className="text-sm text-indigo-600 hover:underline dark:text-indigo-400"
+          className="shrink-0 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-semibold transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
         >
-          ← Kembali ke Katalog
+        Kembali
         </Link>
-
-        <h1 className="mt-4 text-3xl font-black">
-          Edit Alat
-        </h1>
-
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Ubah informasi alat multimedia.
-        </p>
       </div>
 
       <form
