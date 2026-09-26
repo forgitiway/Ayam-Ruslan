@@ -243,10 +243,10 @@ export default function Navbar() {
               user &&
               isAdmin && (
                 <Link
-                  href="/admin/dashboard"
-                  className="font-bold text-indigo-600 hover:text-indigo-500"
+                  href="/admin/approval"
+                  className="hover:text-zinc-900 dark:hover:text-zinc-100"
                 >
-                  Dashboard Admin
+                  Dashboard
                 </Link>
               )}
           </nav>
