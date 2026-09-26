@@ -17,34 +17,60 @@ export default function Navbar() {
       try {
         const token = localStorage.getItem("camspace_token");
 
+        // =========================
+        // BELUM LOGIN
+        // =========================
         if (!token) {
           setUser(null);
           setLoading(false);
           return;
         }
 
-        // CEK ADMIN LOCAL
+        // =========================
+        // CEK DATA USER LOCAL
+        // =========================
         const currentUser = localStorage.getItem(
           "camspace_current_user"
         );
 
         if (currentUser) {
-          const userData = JSON.parse(currentUser);
+          try {
+            const userData = JSON.parse(currentUser);
 
-          if (userData.role === "admin") {
-            setUser(userData);
-            setLoading(false);
-            return;
+            console.log("=== CEK USER LOCAL ===");
+            console.log("USER DATA:", userData);
+            console.log("USER ROLE:", userData?.role);
+            console.log("=====================");
+
+            // Kalau data local sudah lengkap
+            if (userData?.role) {
+              setUser(userData);
+              setLoading(false);
+              return;
+            }
+          } catch (error) {
+            console.error(
+              "Data user local tidak valid:",
+              error
+            );
+
+            localStorage.removeItem(
+              "camspace_current_user"
+            );
           }
         }
 
-        // LOGIN USER BIASA
+        // =========================
+        // AMBIL DATA USER DARI API
+        // =========================
         const response = await apiFetch("/me", {
           method: "GET",
           token: token,
         });
 
+        console.log("=== RESPONSE /ME ===");
         console.log("DATA USER:", response);
+        console.log("====================");
 
         const userData =
           response.user ||
@@ -52,33 +78,63 @@ export default function Navbar() {
           response.data ||
           response;
 
+        console.log("=== CEK USER API ===");
+        console.log("USER DATA:", userData);
+        console.log("USER ROLE:", userData?.role);
+        console.log("===================");
+
         setUser(userData);
+
+        // Simpan data user terbaru
+        localStorage.setItem(
+          "camspace_current_user",
+          JSON.stringify(userData)
+        );
       } catch (error) {
-        console.error("Gagal mengambil data user:", error);
+        console.error(
+          "Gagal mengambil data user:",
+          error
+        );
 
         localStorage.removeItem("camspace_token");
+        localStorage.removeItem(
+          "camspace_current_user"
+        );
+
         setUser(null);
       } finally {
         setLoading(false);
       }
     }
 
-    // Cek login saat Navbar pertama kali dibuka
+    // Jalankan saat Navbar pertama kali dibuka
     cekLogin();
 
-    // Cek ulang setelah user berhasil login
-    window.addEventListener("camspace-login", cekLogin);
+    // Jalankan ulang setelah proses login
+    window.addEventListener(
+      "camspace-login",
+      cekLogin
+    );
 
     return () => {
-      window.removeEventListener("camspace-login", cekLogin);
+      window.removeEventListener(
+        "camspace-login",
+        cekLogin
+      );
     };
   }, []);
 
+  // =========================
+  // LOGOUT
+  // =========================
   async function handleLogout() {
     try {
       setLoggingOut(true);
 
-      const token = localStorage.getItem("camspace_token");
+      const token =
+        localStorage.getItem(
+          "camspace_token"
+        );
 
       if (token) {
         try {
@@ -87,18 +143,24 @@ export default function Navbar() {
             token: token,
           });
         } catch (error) {
-          console.error("Logout API gagal:", error);
+          console.error(
+            "Logout API gagal:",
+            error
+          );
         }
       }
 
-      // Hapus token dari browser
-      localStorage.removeItem("camspace_token");
-      localStorage.removeItem("camspace_current_user");
+      // Hapus semua data login
+      localStorage.removeItem(
+        "camspace_token"
+      );
 
-      // Hapus data user dari Navbar
+      localStorage.removeItem(
+        "camspace_current_user"
+      );
+
       setUser(null);
 
-      // Kembali ke halaman utama
       router.push("/");
       router.refresh();
     } finally {
@@ -106,18 +168,27 @@ export default function Navbar() {
     }
   }
 
+  // =========================
+  // DATA USER
+  // =========================
   const namaUser =
     user?.name ||
     user?.nama ||
     user?.full_name ||
     "Pengguna";
 
+  const isAdmin =
+    user?.role === "admin";
+
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-black">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
 
-        {/* LOGO + NAVIGASI */}
+        {/* =========================
+            LOGO + NAVIGASI
+        ========================= */}
         <div className="flex items-center gap-8">
+
           <Link
             href="/"
             className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white"
@@ -127,6 +198,7 @@ export default function Navbar() {
 
           <nav className="hidden md:flex gap-6 text-sm font-medium text-zinc-600 dark:text-zinc-400">
 
+            {/* KATALOG */}
             <Link
               href="/kamera"
               className="hover:text-zinc-900 dark:hover:text-zinc-100"
@@ -134,50 +206,65 @@ export default function Navbar() {
               Katalog Alat
             </Link>
 
-            {!loading && user && (
-              <>
-                {/* MENU USER */}
-                {user?.role !== "admin" && (
-                  <>
-                    <Link
-                      href="/peminjaman"
-                      className="hover:text-zinc-900 dark:hover:text-zinc-100"
-                    >
-                      Riwayat
-                    </Link>
-
-                    <Link
-                      href="/dashboard"
-                      className="hover:text-zinc-900 dark:hover:text-zinc-100"
-                    >
-                      Profil
-                    </Link>
-                  </>
-                )}
-
-                {/* MENU ADMIN */}
-                {user?.role === "admin" && (
+            {/* =========================
+                MENU USER
+            ========================= */}
+            {!loading &&
+              user &&
+              !isAdmin && (
+                <>
                   <Link
-                    href="/admin/approval"
-                    className="font-bold text-indigo-600 hover:text-indigo-500"
+                    href="/peminjaman"
+                    className="hover:text-zinc-900 dark:hover:text-zinc-100"
                   >
-                    Approval
+                    Riwayat
                   </Link>
-                )}
-              </>
-            )}
+
+                  <Link
+                    href="/status"
+                    className="hover:text-zinc-900 dark:hover:text-zinc-100"
+                  >
+                    Status
+                  </Link>
+
+                  <Link
+                    href="/dashboard"
+                    className="hover:text-zinc-900 dark:hover:text-zinc-100"
+                  >
+                    Profil
+                  </Link>
+                </>
+              )}
+
+            {/* =========================
+                MENU ADMIN
+            ========================= */}
+            {!loading &&
+              user &&
+              isAdmin && (
+                <Link
+                  href="/admin/dashboard"
+                  className="font-bold text-indigo-600 hover:text-indigo-500"
+                >
+                  Dashboard Admin
+                </Link>
+              )}
           </nav>
         </div>
 
-        {/* BAGIAN KANAN */}
+        {/* =========================
+            BAGIAN KANAN
+        ========================= */}
         <div className="flex items-center gap-3">
 
-          {/* Saat sedang mengecek login */}
+          {/* LOADING */}
           {loading ? (
-            <div className="h-9 w-24 rounded-xl bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
+            <div className="h-9 w-24 rounded-xl bg-zinc-100 animate-pulse dark:bg-zinc-800" />
           ) : user ? (
 
-            /* SUDAH LOGIN */
+            /* =========================
+               SUDAH LOGIN
+            ========================= */
             <>
               <span className="hidden sm:block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 Halo, {namaUser}
@@ -188,13 +275,17 @@ export default function Navbar() {
                 disabled={loggingOut}
                 className="rounded-xl bg-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
               >
-                {loggingOut ? "Keluar..." : "Logout"}
+                {loggingOut
+                  ? "Keluar..."
+                  : "Logout"}
               </button>
             </>
 
           ) : (
 
-            /* BELUM LOGIN */
+            /* =========================
+               BELUM LOGIN
+            ========================= */
             <>
               <Link
                 href="/login"

@@ -1,364 +1,326 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
-export default function ApprovalPage() {
-  const router = useRouter();
-
-  const [pengajuan, setPengajuan] = useState([]);
+export default function AdminApprovalPage() {
+  const [rentals, setRentals] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // =========================
-  // AMBIL DATA PENGAJUAN
-  // =========================
-
   useEffect(() => {
-    const token = localStorage.getItem("camspace_token");
-    const currentUser = localStorage.getItem(
-      "camspace_current_user"
-    );
+    loadRentals();
+  }, []);
 
-    // Belum login
-    if (!token) {
-      router.replace("/login");
-      return;
+  function loadRentals() {
+    try {
+      const data = JSON.parse(
+        localStorage.getItem("camspace_rentals") || "[]"
+      );
+
+      setRentals(data);
+    } catch (error) {
+      console.error("Gagal mengambil data peminjaman:", error);
+      setRentals([]);
+    } finally {
+      setLoading(false);
     }
-
-    // Ambil data user
-    if (currentUser) {
-      const user = JSON.parse(currentUser);
-
-      // Bukan admin
-      if (user.role !== "admin") {
-        router.replace("/dashboard");
-        return;
-      }
-    }
-
-    // Ambil pengajuan
-    const data = JSON.parse(
-      localStorage.getItem("camspace_rentals") || "[]"
-    );
-
-    setPengajuan(data);
-    setLoading(false);
-  }, [router]);
-
-  // =========================
-  // UPDATE STATUS
-  // =========================
+  }
 
   function updateStatus(id, status) {
-    const data = JSON.parse(
+    const dataLama = JSON.parse(
       localStorage.getItem("camspace_rentals") || "[]"
     );
 
-    const dataBaru = data.map((item) =>
-      item.id === id
-        ? {
-            ...item,
-            status: status,
-          }
-        : item
-    );
+    const dataBaru = dataLama.map((item) => {
+      if (item.id === id) {
+        return {
+          ...item,
+          status: status,
+        };
+      }
+
+      return item;
+    });
 
     localStorage.setItem(
       "camspace_rentals",
       JSON.stringify(dataBaru)
     );
 
-    setPengajuan(dataBaru);
+    setRentals(dataBaru);
   }
 
-  // =========================
-  // LOGOUT ADMIN
-  // =========================
+  const pendingCount = rentals.filter(
+    (item) => item.status === "pending"
+  ).length;
 
-  function handleLogout() {
-    localStorage.removeItem("camspace_token");
-    localStorage.removeItem(
-      "camspace_current_user"
-    );
+  const approvedCount = rentals.filter(
+    (item) => item.status === "approved"
+  ).length;
 
-    window.dispatchEvent(
-      new Event("camspace-logout")
-    );
+  const rejectedCount = rentals.filter(
+    (item) => item.status === "rejected"
+  ).length;
 
-    router.push("/login");
+  function getStatusLabel(status) {
+    if (status === "pending") {
+      return "Menunggu Persetujuan";
+    }
+
+    if (status === "approved") {
+      return "Disetujui";
+    }
+
+    if (status === "rejected") {
+      return "Ditolak";
+    }
+
+    if (status === "ongoing") {
+      return "Sedang Dipinjam";
+    }
+
+    if (status === "completed") {
+      return "Selesai";
+    }
+
+    return status;
   }
 
-  // =========================
-  // LOADING
-  // =========================
+  function getStatusClass(status) {
+    if (status === "pending") {
+      return "bg-yellow-100 text-yellow-700";
+    }
+
+    if (status === "approved") {
+      return "bg-green-100 text-green-700";
+    }
+
+    if (status === "rejected") {
+      return "bg-red-100 text-red-700";
+    }
+
+    if (status === "ongoing") {
+      return "bg-blue-100 text-blue-700";
+    }
+
+    if (status === "completed") {
+      return "bg-zinc-100 text-zinc-700";
+    }
+
+    return "bg-zinc-100 text-zinc-700";
+  }
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl px-6 py-20 text-center">
-        <p className="text-zinc-500">
-          Memuat data approval...
+      <div className="mx-auto max-w-6xl px-6 py-12">
+        <h1 className="text-3xl font-black">
+          Dashboard Admin
+        </h1>
+
+        <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+          Memuat data...
         </p>
       </div>
     );
   }
 
-  // =========================
-  // HITUNG STATUS
-  // =========================
-
-  const pendingCount = pengajuan.filter(
-    (item) => item.status === "pending"
-  ).length;
-
-  const approvedCount = pengajuan.filter(
-    (item) => item.status === "approved"
-  ).length;
-
-  const rejectedCount = pengajuan.filter(
-    (item) => item.status === "rejected"
-  ).length;
-
   return (
-    <main className="min-h-screen bg-zinc-50 px-6 py-10 dark:bg-zinc-950">
-      <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-6xl px-6 py-12">
+      {/* Header */}
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight">
+            Dashboard Admin
+          </h1>
 
-        {/* =========================
-            HEADER
-        ========================= */}
-
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold text-indigo-600">
-              ADMIN CAMSPACE
-            </p>
-
-            <h1 className="mt-1 text-3xl font-black">
-              Approval Peminjaman
-            </h1>
-
-            <p className="mt-2 text-sm text-zinc-500">
-              Kelola pengajuan peminjaman kamera
-              dari pengguna.
-            </p>
-          </div>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Kelola peminjaman dan persetujuan alat CamSpace.
+          </p>
         </div>
 
-        {/* =========================
-            STATISTIK
-        ========================= */}
+        <Link
+          href="/kamera"
+          className="shrink-0 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-semibold transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+        >
+          ← Kembali
+        </Link>
+      </div>
 
-        <div className="mb-8 grid gap-4 sm:grid-cols-3">
+      {/* Statistik Dashboard */}
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+        {/* Pending */}
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+            Menunggu Persetujuan
+          </p>
 
-          {/* PENDING */}
-          <div className="rounded-2xl border border-yellow-200 bg-yellow-50 p-5 dark:border-yellow-900 dark:bg-yellow-950/30">
-            <p className="text-sm font-medium text-yellow-700 dark:text-yellow-400">
-              Menunggu Persetujuan
-            </p>
+          <p className="mt-2 text-3xl font-black">
+            {pendingCount}
+          </p>
 
-            <p className="mt-2 text-3xl font-black text-yellow-700 dark:text-yellow-400">
-              {pendingCount}
-            </p>
-          </div>
-
-          {/* APPROVED */}
-          <div className="rounded-2xl border border-green-200 bg-green-50 p-5 dark:border-green-900 dark:bg-green-950/30">
-            <p className="text-sm font-medium text-green-700 dark:text-green-400">
-              Disetujui
-            </p>
-
-            <p className="mt-2 text-3xl font-black text-green-700 dark:text-green-400">
-              {approvedCount}
-            </p>
-          </div>
-
-          {/* REJECTED */}
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 dark:border-red-900 dark:bg-red-950/30">
-            <p className="text-sm font-medium text-red-700 dark:text-red-400">
-              Ditolak
-            </p>
-
-            <p className="mt-2 text-3xl font-black text-red-700 dark:text-red-400">
-              {rejectedCount}
-            </p>
-          </div>
-
+          <p className="mt-1 text-xs text-zinc-500">
+            Pengajuan menunggu approval
+          </p>
         </div>
 
-        {/* =========================
-            DAFTAR PENGAJUAN
-        ========================= */}
+        {/* Approved */}
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+            Disetujui
+          </p>
 
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold">
-            Daftar Pengajuan
+          <p className="mt-2 text-3xl font-black">
+            {approvedCount}
+          </p>
+
+          <p className="mt-1 text-xs text-zinc-500">
+            Pengajuan telah disetujui
+          </p>
+        </div>
+
+        {/* Rejected */}
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+            Ditolak
+          </p>
+
+          <p className="mt-2 text-3xl font-black">
+            {rejectedCount}
+          </p>
+
+          <p className="mt-1 text-xs text-zinc-500">
+            Pengajuan telah ditolak
+          </p>
+        </div>
+      </div>
+
+      {/* Approval */}
+      <div className="mt-10">
+        <div className="mb-5">
+          <h2 className="text-2xl font-black">
+            Approval Peminjaman
           </h2>
 
-          <span className="text-sm text-zinc-500">
-            {pengajuan.length} pengajuan
-          </span>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Kelola pengajuan peminjaman alat dari pengguna.
+          </p>
         </div>
 
-        {pengajuan.length === 0 ? (
-          <div className="rounded-2xl border border-zinc-200 bg-white p-10 text-center dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-zinc-500">
+        {rentals.length === 0 ? (
+          <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-900">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
               Belum ada pengajuan peminjaman.
             </p>
           </div>
         ) : (
-          <div className="space-y-5">
-
-            {pengajuan.map((item) => (
+          <div className="space-y-4">
+            {rentals.map((item) => (
               <div
                 key={item.id}
-                className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+                className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
               >
-
-                {/* HEADER CARD */}
-                <div className="flex flex-col gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800 sm:flex-row sm:items-start sm:justify-between">
-
+                {/* Header Pengajuan */}
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">
-                      Pengajuan #{item.id}
-                    </p>
-
-                    <h3 className="mt-1 text-lg font-bold">
-                      {item.equipment_name ||
-                        `Alat #${item.equipment_id}`}
+                    <h3 className="text-lg font-bold">
+                      {item.equipment_name}
                     </h3>
+
+                    <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                      Pengaju: {item.user_name}
+                    </p>
                   </div>
 
-                  {/* STATUS */}
-                  <div>
-                    {item.status === "pending" && (
-                      <span className="inline-flex rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
-                        PENDING
-                      </span>
-                    )}
-
-                    {item.status === "approved" && (
-                      <span className="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                        APPROVED
-                      </span>
-                    )}
-
-                    {item.status === "rejected" && (
-                      <span className="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
-                        REJECTED
-                      </span>
-                    )}
-                  </div>
-
+                  <span
+                    className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
+                      item.status
+                    )}`}
+                  >
+                    {getStatusLabel(item.status)}
+                  </span>
                 </div>
 
-                {/* DETAIL */}
-                <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-
-                  {/* PEMINJAM */}
+                {/* Detail */}
+                <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
                   <div>
-                    <p className="text-xs font-medium text-zinc-500">
-                      Peminjam
-                    </p>
-
-                    <p className="mt-1 font-semibold">
-                      {item.user_name || "-"}
-                    </p>
-                  </div>
-
-                  {/* ID ALAT */}
-                  <div>
-                    <p className="text-xs font-medium text-zinc-500">
-                      ID Alat
-                    </p>
-
-                    <p className="mt-1 font-semibold">
-                      {item.equipment_id}
-                    </p>
-                  </div>
-
-                  {/* JUMLAH */}
-                  <div>
-                    <p className="text-xs font-medium text-zinc-500">
-                      Jumlah
-                    </p>
-
-                    <p className="mt-1 font-semibold">
-                      {item.quantity}
-                    </p>
-                  </div>
-
-                  {/* TANGGAL MULAI */}
-                  <div>
-                    <p className="text-xs font-medium text-zinc-500">
+                    <p className="text-xs text-zinc-500">
                       Tanggal Mulai
                     </p>
 
-                    <p className="mt-1 font-semibold">
-                      {item.start_date}
+                    <p className="mt-1 text-sm font-semibold">
+                      {item.start_date || "-"}
                     </p>
                   </div>
 
-                  {/* TANGGAL SELESAI */}
                   <div>
-                    <p className="text-xs font-medium text-zinc-500">
+                    <p className="text-xs text-zinc-500">
                       Tanggal Selesai
                     </p>
 
-                    <p className="mt-1 font-semibold">
-                      {item.end_date}
+                    <p className="mt-1 text-sm font-semibold">
+                      {item.end_date || "-"}
                     </p>
                   </div>
 
-                  {/* KEPERLUAN */}
                   <div>
-                    <p className="text-xs font-medium text-zinc-500">
+                    <p className="text-xs text-zinc-500">
+                      Jumlah
+                    </p>
+
+                    <p className="mt-1 text-sm font-semibold">
+                      {item.quantity || 0} Unit
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-zinc-500">
                       Keperluan
                     </p>
 
-                    <p className="mt-1 font-semibold">
+                    <p className="mt-1 text-sm font-semibold">
                       {item.keperluan || "-"}
                     </p>
                   </div>
-
                 </div>
 
-                {/* ACTION */}
+                {/* Tombol Approval */}
                 {item.status === "pending" && (
-                  <div className="mt-6 flex flex-col gap-3 border-t border-zinc-100 pt-5 dark:border-zinc-800 sm:flex-row sm:justify-end">
-
+                  <div className="mt-5 flex gap-3 border-t border-zinc-200 pt-5 dark:border-zinc-800">
                     <button
+                      type="button"
                       onClick={() =>
-                        updateStatus(
-                          item.id,
-                          "rejected"
-                        )
+                        updateStatus(item.id, "approved")
                       }
-                      className="rounded-xl border border-red-200 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950"
-                    >
-                      Tolak
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        updateStatus(
-                          item.id,
-                          "approved"
-                        )
-                      }
-                      className="rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700"
+                      className="flex-1 rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
                     >
                       Setujui
                     </button>
 
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateStatus(item.id, "rejected")
+                      }
+                      className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700"
+                    >
+                      Tolak
+                    </button>
                   </div>
                 )}
 
+                {/* Status jika sudah diproses */}
+                {item.status !== "pending" && (
+                  <div className="mt-5 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+                    <p className="text-xs text-zinc-500">
+                      Status pengajuan sudah diproses oleh admin.
+                    </p>
+                  </div>
+                )}
               </div>
             ))}
-
           </div>
         )}
-
       </div>
-    </main>
+    </div>
   );
 }
