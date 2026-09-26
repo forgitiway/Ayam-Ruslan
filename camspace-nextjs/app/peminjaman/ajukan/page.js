@@ -174,6 +174,46 @@ export default function AjukanPeminjamanPage() {
         throw new Error(data.message || "Gagal membuat pengajuan.");
       }
 
+      const equipmentResponse = await apiFetch(
+        `/equipment/${equipmentId}`,
+        {
+          method: "GET",
+          token,
+        }
+      );
+
+      const stokSekarang = Number(equipmentResponse.stock);
+      const jumlahPinjam = Number(quantity);
+
+      // Cek stok
+      if (stokSekarang < jumlahPinjam) {
+        throw new Error(
+          `Stok tidak cukup. Stok tersedia hanya ${stokSekarang} unit.`
+        );
+      }
+
+      const stokBaru = stokSekarang - jumlahPinjam;
+
+      // Update stok ke database
+      await apiFetch(
+        `/equipment/${equipmentId}`,
+        {
+          method: "PUT",
+          token,
+          body: {
+            name: equipmentResponse.name,
+            category: equipmentResponse.category,
+            brand: equipmentResponse.brand,
+            description: equipmentResponse.description,
+            price_per_day: Number(equipmentResponse.price_per_day),
+            stock: stokBaru,
+            image_url: equipmentResponse.image_url,
+            status: equipmentResponse.status,
+            specifications: equipmentResponse.specifications,
+          },
+        }
+      );
+
       // Simpan data untuk halaman status
 
       const pengajuan = {
