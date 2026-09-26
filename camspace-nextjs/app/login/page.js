@@ -26,9 +26,38 @@ export default function LoginPage() {
     try {
       setLoading(true);
 
-      // =========================
-      // LOGIN KE API
-      // =========================
+      // LOGIN ADMIN
+      if (
+        email === "admin@camspace.com" &&
+        password === "admin123"
+      ) {
+        const adminUser = {
+          user_id: 999,
+          name: "Admin CamSpace",
+          email: "admin@camspace.com",
+          role: "admin",
+        };
+
+        localStorage.setItem(
+          "camspace_current_user",
+          JSON.stringify(adminUser)
+        );
+
+        localStorage.setItem(
+          "camspace_token",
+          "admin-token"
+        );
+
+        // Beri tahu Navbar bahwa admin sudah login
+        window.dispatchEvent(new Event("camspace-login"));
+
+        // Masuk ke halaman approval
+        router.push("/admin/approval");
+
+        return;
+      }
+
+      // LOGIN USER BIASA
       const response = await apiFetch("/login", {
         method: "POST",
         body: {
@@ -39,9 +68,7 @@ export default function LoginPage() {
 
       console.log("HASIL LOGIN:", response);
 
-      // =========================
-      // AMBIL TOKEN
-      // =========================
+      // Ambil token dari berbagai kemungkinan struktur response API
       const token =
         response.token ||
         response.access_token ||
@@ -54,65 +81,19 @@ export default function LoginPage() {
         );
       }
 
-      // =========================
-      // SIMPAN TOKEN
-      // =========================
-      localStorage.setItem(
-        "camspace_token",
-        token
-      );
+      // Simpan token
+      localStorage.setItem("camspace_token", token);
 
-      // =========================
-      // AMBIL DATA USER
-      // =========================
-      const userResponse = await apiFetch("/me", {
-        method: "GET",
-        token: token,
-      });
+      // Beri tahu Navbar bahwa login berhasil
+      window.dispatchEvent(new Event("camspace-login"));
 
-      console.log("DATA USER:", userResponse);
-
-      const userData =
-        userResponse.data ||
-        userResponse.user ||
-        userResponse;
-
-      console.log("USER:", userData);
-      console.log("ROLE:", userData?.role);
-
-      // =========================
-      // SIMPAN DATA USER
-      // =========================
-      localStorage.setItem(
-        "camspace_current_user",
-        JSON.stringify(userData)
-      );
-
-      // Beri tahu Navbar
-      window.dispatchEvent(
-        new Event("camspace-login")
-      );
-
-      // =========================
-      // ARAHKAN SESUAI ROLE
-      // =========================
-      if (userData?.role === "admin") {
-        router.push("/admin/dashboard");
-      } else {
-        router.push("/dashboard");
-      }
+      // Masuk ke dashboard
+      router.push("/dashboard");
     } catch (error) {
       console.error("ERROR LOGIN:", error);
 
-      // Hapus data login kalau gagal
-      localStorage.removeItem("camspace_token");
-      localStorage.removeItem(
-        "camspace_current_user"
-      );
-
       setError(
-        error.message ||
-          "Email atau password tidak valid."
+        error.message || "Email atau password tidak valid."
       );
     } finally {
       setLoading(false);
@@ -137,7 +118,7 @@ export default function LoginPage() {
         {/* FORM */}
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
+          className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 space-y-4"
         >
 
           {/* EMAIL */}
@@ -149,9 +130,7 @@ export default function LoginPage() {
             <input
               type="email"
               value={email}
-              onChange={(event) =>
-                setEmail(event.target.value)
-              }
+              onChange={(event) => setEmail(event.target.value)}
               placeholder="nama@email.com"
               className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
             />
@@ -166,9 +145,7 @@ export default function LoginPage() {
             <input
               type="password"
               value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
-              }
+              onChange={(event) => setPassword(event.target.value)}
               placeholder="••••••••"
               className="mt-1 w-full rounded-xl border border-zinc-200 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-zinc-100"
             />
@@ -187,9 +164,7 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full rounded-xl bg-black py-3 font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
           >
-            {loading
-              ? "Memproses..."
-              : "Masuk"}
+            {loading ? "Memproses..." : "Masuk"}
           </button>
         </form>
 
