@@ -107,25 +107,23 @@ export default function Home() {
   useEffect(() => {
     async function loadHome() {
       try {
-        const token =
-          localStorage.getItem("camspace_token");
+        const token = localStorage.getItem("camspace_token");
 
         // =========================================
-        // CEK USER YANG SEDANG LOGIN
+        // 1. CEK USER YANG SEDANG LOGIN
         // =========================================
 
         if (token) {
           try {
-            // CEK ADMIN LOKAL
-            const currentUser =
-              localStorage.getItem(
-                "camspace_current_user"
-              );
+            // Cek user yang tersimpan di localStorage
+            const currentUser = localStorage.getItem(
+              "camspace_current_user"
+            );
 
             if (currentUser) {
-              const userData =
-                JSON.parse(currentUser);
+              const userData = JSON.parse(currentUser);
 
+              // Kalau Admin
               if (userData?.role === "admin") {
                 setRole("admin");
                 setCheckingRole(false);
@@ -133,14 +131,11 @@ export default function Home() {
               }
             }
 
-            // CEK USER DARI API
-            const userResponse = await apiFetch(
-              "/me",
-              {
-                method: "GET",
-                token: token,
-              }
-            );
+            // Kalau bukan admin, cek ke API
+            const userResponse = await apiFetch("/me", {
+              method: "GET",
+              token: token,
+            });
 
             console.log(
               "DATA USER LANDING:",
@@ -157,8 +152,7 @@ export default function Home() {
               userResponse.data?.role
             );
 
-            const userData =
-              userResponse.data;
+            const userData = userResponse.data;
 
             if (userData?.role) {
               setRole(userData.role);
@@ -166,7 +160,8 @@ export default function Home() {
               setRole("user");
             }
 
-            // Kalau Admin, hanya tampilkan hero
+            // Kalau Admin dari API,
+            // langsung tampilkan hero admin
             if (userData?.role === "admin") {
               setCheckingRole(false);
               return;
@@ -177,28 +172,21 @@ export default function Home() {
               error
             );
 
-            localStorage.removeItem(
-              "camspace_token"
-            );
-
+            localStorage.removeItem("camspace_token");
             setRole(null);
           }
         }
 
         // =========================================
-        // AMBIL DATA ALAT UNTUK USER / PENGUNJUNG
+        // 2. AMBIL DATA ALAT UNTUK USER / PENGUNJUNG
         // =========================================
 
         setLoadingEquipment(true);
 
-        const response = await apiFetch(
-          "/equipment",
-          {
-            method: "GET",
-            token:
-              process.env.NEXT_PUBLIC_DEV_TOKEN,
-          }
-        );
+        const response = await apiFetch("/equipment", {
+          method: "GET",
+          token: process.env.NEXT_PUBLIC_DEV_TOKEN,
+        });
 
         const apiData = Array.isArray(response)
           ? response
@@ -223,7 +211,7 @@ export default function Home() {
   }, []);
 
   // =========================================
-  // LOADING
+  // 3. LOADING CEK ROLE
   // =========================================
 
   if (checkingRole) {
@@ -237,47 +225,41 @@ export default function Home() {
   }
 
   // =========================================
-  // LANDING PAGE ADMIN
+  // 4. LANDING PAGE ADMIN
   // HERO SAJA
   // =========================================
 
   if (role === "admin") {
     return (
-      <div className="min-h-screen bg-black font-sans text-white">
+      <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900 dark:bg-black dark:text-zinc-100">
 
-        <section className="relative flex min-h-[calc(100vh-70px)] items-center justify-center overflow-hidden px-6">
+        {/* HERO ADMIN */}
 
-          <div className="mx-auto max-w-4xl text-center">
+        <section className="relative overflow-hidden bg-black px-6 py-20 text-white">
+
+          <div className="mx-auto max-w-5xl space-y-6 text-center">
 
             <span className="inline-block rounded-full border border-zinc-800 bg-zinc-900 px-4 py-1.5 text-xs font-semibold text-zinc-300">
               Admin CamSpace
             </span>
 
-            <h1 className="mt-6 text-4xl font-black leading-tight tracking-tight sm:text-6xl">
-              Selamat Datang di
-              <br />
+            <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-6xl">
+
+              Kelola CamSpace
+
+              <br className="hidden sm:block" />
 
               <span className="text-zinc-400">
-                CamSpace Admin
+                dengan Lebih Mudah
               </span>
+
             </h1>
 
-            <p className="mx-auto mt-6 max-w-2xl text-base text-zinc-400 sm:text-lg">
-              Kelola alat dan pantau aktivitas
-              peminjaman CamSpace melalui halaman
-              administrasi.
+            <p className="mx-auto max-w-2xl text-base text-zinc-400 sm:text-lg">
+              Kelola alat, pantau peminjaman, dan
+              proses persetujuan melalui sistem
+              administrasi CamSpace.
             </p>
-
-            <div className="mt-8 flex justify-center">
-
-              <Link
-                href="/admin/dashboard"
-                className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200"
-              >
-                Dashboard Admin
-              </Link>
-
-            </div>
 
           </div>
 
@@ -288,13 +270,15 @@ export default function Home() {
   }
 
   // =========================================
-  // LANDING PAGE USER / PENGUNJUNG
+  // 5. LANDING PAGE USER / PENGUNJUNG
   // =========================================
 
   return (
     <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900 dark:bg-black dark:text-zinc-100">
 
-      {/* HERO */}
+      {/* =========================================
+          HERO USER
+      ========================================= */}
 
       <section className="relative overflow-hidden bg-black px-6 py-20 text-white">
 
@@ -350,9 +334,13 @@ export default function Home() {
 
       </section>
 
-      {/* PRODUK POPULER */}
+      {/* =========================================
+          PRODUK POPULER
+      ========================================= */}
 
       <section className="mx-auto max-w-6xl px-6 py-16">
+
+        {/* HEADER */}
 
         <div className="mb-8 flex items-center justify-between">
 
