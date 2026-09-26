@@ -1,4 +1,9 @@
+
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
 
 const peminjamanTerbaru = [
   {
@@ -16,33 +21,221 @@ const peminjamanTerbaru = [
 ];
 
 export default function DashboardPage() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [phone, setPhone] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    async function getUser() {
+      try {
+        const token = localStorage.getItem("camspace_token");
+
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
+        // Kalau admin login dari localStorage
+        const currentUser = localStorage.getItem("camspace_current_user");
+
+        if (currentUser) {
+          const admin = JSON.parse(currentUser);
+
+          setUser(admin);
+
+          const savedPhone = localStorage.getItem(
+            `camspace_phone_${admin.user_id || admin.id}`
+          );
+
+          setPhone(savedPhone || admin.phone || "");
+
+          setLoading(false);
+          return;
+        }
+
+        // User biasa
+        const response = await apiFetch("/me", {
+          method: "GET",
+          token,
+        });
+
+        const userData =
+          response.user ||
+          response.data?.user ||
+          response.data ||
+          response;
+
+        console.log("USER DATA:", userData);
+
+        setUser(userData);
+
+        const savedPhone = localStorage.getItem(
+          `camspace_phone_${userData.user_id || userData.id}`
+        );
+
+        setPhone(
+          savedPhone ||
+            userData.phone ||
+            userData.nomor_hp ||
+            userData.no_hp ||
+            ""
+        );
+      } catch (err) {
+        console.error("Gagal mengambil data user:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    getUser();
+  }, []);
+
+  async function handleSavePhone() {
+    try {
+      setSaving(true);
+
+      if (!user) return;
+
+      const key = `camspace_phone_${user.user_id || user.id}`;
+
+      localStorage.setItem(key, phone);
+
+      setShowSuccess(true);
+
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 2500);
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-5xl px-6 py-12 space-y-8">
 
+      {/* Toast */}
+      <div
+        className={`fixed right-6 top-20 z-50 transition-all duration-300 ${
+          showSuccess
+            ? "translate-x-0 opacity-100"
+            : "translate-x-10 opacity-0 pointer-events-none"
+        }`}
+      >
+        <div className="flex items-center gap-3 rounded-xl bg-green-600 px-5 py-3 text-white shadow-xl">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white font-bold text-green-600">
+            ✓
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold">
+              Berhasil!
+            </p>
+
+            <p className="text-xs opacity-90">
+              Nomor HP berhasil diperbarui.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-black">
+        <h1 className="text-center text-3xl font-black">
           Profil
         </h1>
 
-        <p className="mt-2 text-sm text-zinc-500">
+        <p className="mt-2 text-center text-sm text-zinc-500">
           Selamat datang kembali di CamSpace 👋
         </p>
 
-        <p className="text-sm text-zinc-500">
+        <p className="text-center text-sm text-zinc-500">
           Pantau aktivitas peminjaman alatmu di sini.
         </p>
+      </div>
+
+      {/* Informasi Profil */}
+      <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+
+        <h2 className="text-xl font-bold">
+          Informasi Profil
+        </h2>
+
+        <p className="mt-1 text-sm text-zinc-500">
+          Perbarui informasi kontakmu.
+        </p>
+
+        <div className="mt-6 space-y-4">
+
+          {/* Nama */}
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              Nama
+            </label>
+
+            <input
+              type="text"
+              value={
+                user?.name ||
+                user?.nama ||
+                user?.full_name ||
+                ""
+              }
+              readOnly
+              className="w-full rounded-xl border border-zinc-300 bg-zinc-100 px-4 py-3 text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              Alamat Email
+            </label>
+
+            <input
+              type="email"
+              value={user?.email || ""}
+              readOnly
+              className="w-full rounded-xl border border-zinc-300 bg-zinc-100 px-4 py-3 text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400"
+            />
+          </div>
+
+          {/* Nomor HP */}
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              Nomor HP
+            </label>
+
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Masukkan nomor HP"
+              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-black dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+            />
+          </div>
+
+          <button
+            onClick={handleSavePhone}
+            disabled={saving || loading}
+            className="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+          >
+            {saving ? "Menyimpan..." : "Simpan Perubahan"}
+          </button>
+
+        </div>
       </div>
 
       {/* Ringkasan */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 
         <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-zinc-500">
             Peminjaman Aktif
           </p>
 
-          <h2 className="mt-2 text-3xl font-black text-zinc-900 dark:text-zinc-100">
+          <h2 className="mt-2 text-3xl font-black">
             1
           </h2>
 
@@ -52,11 +245,11 @@ export default function DashboardPage() {
         </div>
 
         <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-zinc-500">
             Menunggu Approval
           </p>
 
-          <h2 className="mt-2 text-3xl font-black text-zinc-900 dark:text-zinc-100">
+          <h2 className="mt-2 text-3xl font-black">
             1
           </h2>
 
@@ -66,11 +259,11 @@ export default function DashboardPage() {
         </div>
 
         <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-zinc-500">
             Peminjaman Selesai
           </p>
 
-          <h2 className="mt-2 text-3xl font-black text-zinc-900 dark:text-zinc-100">
+          <h2 className="mt-2 text-3xl font-black">
             1
           </h2>
 
@@ -97,7 +290,7 @@ export default function DashboardPage() {
 
           <Link
             href="/status"
-            className="text-sm font-semibold text-zinc-900 hover:underline dark:text-zinc-100"
+            className="text-sm font-semibold hover:underline"
           >
             Lihat Semua →
           </Link>
@@ -119,7 +312,7 @@ export default function DashboardPage() {
                   {item.alat}
                 </h3>
 
-                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                <p className="mt-1 text-sm text-zinc-500">
                   {item.tanggal}
                 </p>
               </div>
@@ -138,7 +331,7 @@ export default function DashboardPage() {
 
                 <Link
                   href="/status"
-                  className="text-sm font-semibold text-zinc-900 hover:underline dark:text-zinc-100"
+                  className="text-sm font-semibold hover:underline"
                 >
                   Detail
                 </Link>
@@ -158,7 +351,7 @@ export default function DashboardPage() {
           Butuh alat untuk kebutuhanmu?
         </h2>
 
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-zinc-500">
           Cari kamera dan peralatan content creation yang tersedia.
         </p>
 
