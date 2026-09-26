@@ -22,7 +22,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-black">
-          Dashboard
+          Profil
         </h1>
 
         <p className="mt-2 text-sm text-zinc-500">

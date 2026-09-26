@@ -1,15 +1,26 @@
 import Link from "next/link";
 import { apiFetch } from "@/lib/api";
 
+const imageMap = {
+  "Sony A7III":
+    "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=1200&q=80",
+  "Canon EOS R6":
+    "https://images.unsplash.com/photo-1617005082133-548c4dd27f35?w=1200&q=80",
+  "Tripod Manfrotto":
+    "https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=1200&q=80",
+};
+
 export default async function DetailAlatPage({ params }) {
-  const resolvedParams = await params;
+  const { id } = await params;
 
   let item;
 
   try {
-    item = await apiFetch(`/equipment/${resolvedParams.id}`, {
+    const response = await apiFetch(`/equipment/${id}`, {
       token: process.env.NEXT_PUBLIC_DEV_TOKEN,
     });
+
+    item = response.data || response;
   } catch (error) {
     return (
       <div className="mx-auto max-w-4xl px-6 py-12 font-sans">
@@ -19,95 +30,80 @@ export default async function DetailAlatPage({ params }) {
               Gagal Mengambil Data
             </h1>
 
-            <p className="mt-2 text-sm text-zinc-500">
-              {error.message}
-            </p>
-          </div>
-
-          <Link
-            href="/kamera"
-            className="shrink-0 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-semibold transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-          >
-          Kembali
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (!item || !item.id) {
-    return (
-      <div className="mx-auto max-w-4xl px-6 py-12 font-sans">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold">
-              Peralatan Tidak Ditemukan
-            </h1>
-
-            <p className="mt-2 text-sm text-zinc-500">
-              Alat dengan ID "{resolvedParams.id}" tidak ada dalam katalog.
-            </p>
-          </div>
-
-          <Link
-            href="/kamera"
-            className="shrink-0 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-semibold transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-          >
-          Kembali
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="mx-auto max-w-4xl px-6 py-12 font-sans">
-      {/* Header */}
-      <div className="mb-8 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black">
-            Detail Alat
-          </h1>
-
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Informasi lengkap alat multimedia.
-          </p>
-        </div>
+        <p className="text-sm text-zinc-500">
+          {error.message}
+        </p>
 
         <Link
           href="/kamera"
-          className="shrink-0 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-semibold transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+          className="inline-block rounded-xl bg-indigo-600 px-4 py-2 text-sm text-white font-medium"
         >
-        Kembali
+          Kembali ke Katalog
         </Link>
       </div>
+    );
+  }
 
-      {/* Detail Alat */}
-      <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2">
+  if (!item?.id) {
+    return (
+      <div className="mx-auto max-w-xl px-6 py-20 text-center space-y-4">
+        <h1 className="text-2xl font-bold">
+          Peralatan Tidak Ditemukan
+        </h1>
+
+        <p className="text-sm text-zinc-500">
+          Alat dengan ID "{resolvedParams.id}" tidak ada dalam katalog.
+        </p>
+
+        <Link
+          href="/kamera"
+          className="inline-block rounded-xl bg-indigo-600 px-4 py-2 text-sm text-white font-medium"
+        >
+          Kembali ke Katalog
+        </Link>
+      </div>
+    );
+  }
+
+  const gambar = item.image_url || imageMap[item.name];
+
+  return (
+    <div className="mx-auto max-w-4xl px-6 py-12 space-y-8 font-sans">
+      <Link
+        href="/kamera"
+        className="text-sm text-indigo-600 hover:underline dark:text-indigo-400"
+      >
+        ← Kembali ke Katalog
+      </Link>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         {/* Gambar Alat */}
         <div className="h-64 overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
           {item.image_url ? (
             <img
-              src={item.image_url}
+              src={gambar}
               alt={item.name}
-              className="h-full w-full object-cover"
+              className="h-[500px] w-full object-cover"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-zinc-400">
+            <div className="flex h-[500px] items-center justify-center text-zinc-400">
               Tidak ada gambar
             </div>
           )}
         </div>
 
-        {/* Detail Info */}
-        <div className="space-y-4">
-          <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-            {item.category}
-          </span>
+        {/* DETAIL */}
+        <div className="space-y-6">
 
-          <h2 className="text-3xl font-black">
+          <div className="flex flex-wrap items-center gap-3">
+
+            <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-700">
+              {item.category}
+            </span>
+
+          <h1 className="text-3xl font-black">
             {item.name}
-          </h2>
+          </h1>
 
           <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
             Rp{Number(item.price_per_day).toLocaleString("id-ID")}
@@ -117,7 +113,7 @@ export default async function DetailAlatPage({ params }) {
             </span>
           </p>
 
-          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
             {item.description || "Belum ada deskripsi alat."}
           </p>
 
@@ -127,10 +123,11 @@ export default async function DetailAlatPage({ params }) {
 
           <Link
             href={`/peminjaman/ajukan?id=${item.id}`}
-            className="block w-full rounded-xl bg-indigo-600 py-3 text-center font-semibold text-white shadow-md shadow-indigo-500/20 transition hover:bg-indigo-500"
+            className="block text-center w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white transition hover:bg-indigo-500 shadow-md shadow-indigo-500/20"
           >
-            Ajukan Peminjaman Alat Ini
+            Ajukan Peminjaman
           </Link>
+
         </div>
       </div>
     </div>
