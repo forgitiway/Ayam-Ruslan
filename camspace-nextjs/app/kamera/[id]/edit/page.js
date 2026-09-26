@@ -231,10 +231,6 @@ export default function EditAlatPage() {
             <h1 className="text-2xl font-black">
               Edit Alat
             </h1>
-
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              Ubah informasi alat multimedia.
-            </p>
           </div>
 
           <Link
@@ -382,7 +378,7 @@ export default function EditAlatPage() {
 
         {/* Tombol */}
         <div className="flex gap-3 pt-2">
-          <Link
+          <Link    
             href="/kamera"
             className="flex-1 rounded-xl border border-zinc-300 px-4 py-3 text-center text-sm font-semibold transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
           >

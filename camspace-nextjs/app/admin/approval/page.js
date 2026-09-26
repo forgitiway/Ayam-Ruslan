@@ -228,10 +228,6 @@ export default function AdminApprovalPage() {
             <h1 className="text-3xl font-black tracking-tight">
               Dashboard Admin
             </h1>
-
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              Kelola peminjaman dan persetujuan alat CamSpace.
-            </p>
           </div>
 
           <Link
@@ -258,10 +254,6 @@ export default function AdminApprovalPage() {
             <p className="mt-2 text-3xl font-black">
               {pendingCount}
             </p>
-
-            <p className="mt-1 text-xs text-zinc-500">
-              Pengajuan menunggu approval
-            </p>
           </div>
 
           {/* Approved */}
@@ -274,10 +266,6 @@ export default function AdminApprovalPage() {
             <p className="mt-2 text-3xl font-black">
               {approvedCount}
             </p>
-
-            <p className="mt-1 text-xs text-zinc-500">
-              Pengajuan telah disetujui
-            </p>
           </div>
 
           {/* Rejected */}
@@ -289,10 +277,6 @@ export default function AdminApprovalPage() {
 
             <p className="mt-2 text-3xl font-black">
               {rejectedCount}
-            </p>
-
-            <p className="mt-1 text-xs text-zinc-500">
-              Pengajuan telah ditolak
             </p>
           </div>
         </div>
