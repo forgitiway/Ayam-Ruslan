@@ -18,72 +18,41 @@ type Equipment = {
   created_at: string;
 };
 
-// Gambar cadangan untuk alat yang image_url dari API masih null
 const gambarAlat: Record<number, string> = {
-  1: "/images/mic-rode-videomic-go.jpg",
+  1: "/images/sony-a7iii.jpg",
   2: "/images/canon-eos-r6.jpg",
-  4: "/images/gopro-hero-11.jpg",
-  5: "/images/sony-fe-16-35mm.jpg",
-  6: "/images/dji-mini-3.jpg",
-  8: "/images/dji-osmo-mobile-6.jpg",
-  10: "/images/led-video-light-panel.jpg",
-  11: "/images/tripod-ulanzi-mt-44.jpg",
-  13: "/images/ip-18-promag-xx.jpg",
+  3: "/images/tripod-manfrotto.jpg",
 };
 
 export default function Home() {
-  // =====================================================
-  // USER / ROLE
-  // =====================================================
-
   const [role, setRole] = useState<string | null>(null);
   const [checkingRole, setCheckingRole] = useState(true);
 
-  // =====================================================
-  // DATA EQUIPMENT
-  // =====================================================
-
-  const [dataKamera, setDataKamera] = useState<Equipment[]>(
-    []
-  );
-
+  const [dataKamera, setDataKamera] = useState<Equipment[]>([]);
   const [loadingEquipment, setLoadingEquipment] =
-    useState(true);
-
-  const [errorEquipment, setErrorEquipment] =
-    useState("");
-
-  // =====================================================
-  // SEARCH
-  // =====================================================
-
-  const [searchKeyword, setSearchKeyword] =
-    useState("");
-
-  const [searchResults, setSearchResults] =
-    useState<Equipment[]>([]);
-
-  const [hasSearched, setHasSearched] =
     useState(false);
 
-  // =====================================================
-  // AMBIL DATA USER DAN EQUIPMENT
-  // =====================================================
+  // =========================================
+  // SEARCH
+  // =========================================
+
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [searchResults, setSearchResults] =
+    useState<Equipment[] | null>(null);
 
   useEffect(() => {
     async function loadHome() {
       try {
-        setErrorEquipment("");
-
         const token =
           localStorage.getItem("camspace_token");
 
-        // =================================================
-        // CEK ROLE USER
-        // =================================================
+        // =========================================
+        // 1. CEK USER YANG SEDANG LOGIN
+        // =========================================
 
         if (token) {
           try {
+            // Cek user yang tersimpan di localStorage
             const currentUser =
               localStorage.getItem(
                 "camspace_current_user"
@@ -93,16 +62,15 @@ export default function Home() {
               const userData =
                 JSON.parse(currentUser);
 
+              // Kalau Admin
               if (userData?.role === "admin") {
                 setRole("admin");
                 setCheckingRole(false);
-                setLoadingEquipment(false);
-
                 return;
               }
             }
 
-            // Jika bukan admin, cek user ke API
+            // Kalau bukan admin, cek ke API
             const userResponse =
               await apiFetch("/me", {
                 method: "GET",
@@ -114,6 +82,16 @@ export default function Home() {
               userResponse
             );
 
+            console.log(
+              "USER DATA:",
+              userResponse.data
+            );
+
+            console.log(
+              "ROLE USER:",
+              userResponse.data?.role
+            );
+
             const userData =
               userResponse.data;
 
@@ -123,11 +101,10 @@ export default function Home() {
               setRole("user");
             }
 
-            // Jika ternyata admin
+            // Kalau Admin dari API,
+            // langsung tampilkan hero admin
             if (userData?.role === "admin") {
               setCheckingRole(false);
-              setLoadingEquipment(false);
-
               return;
             }
           } catch (error) {
@@ -140,65 +117,36 @@ export default function Home() {
               "camspace_token"
             );
 
-            localStorage.removeItem(
-              "camspace_current_user"
-            );
-
             setRole(null);
           }
         }
 
-        // =================================================
-        // AMBIL DATA EQUIPMENT DARI API PANITIA
-        // =================================================
+        // =========================================
+        // 2. AMBIL DATA ALAT DARI API PANITIA
+        // =========================================
+
+        setLoadingEquipment(true);
 
         const response = await apiFetch(
           "/equipment",
           {
             method: "GET",
             token:
-              process.env
-                .NEXT_PUBLIC_DEV_TOKEN,
+              process.env.NEXT_PUBLIC_DEV_TOKEN,
           }
         );
 
-        console.log(
-          "DATA EQUIPMENT DARI API:",
-          response
-        );
-
-        /*
-          API panitia saat ini mengembalikan:
-
-          [
-            {
-              id: 1,
-              name: "Mic Rode VideoMic GO",
-              category: "Audio",
-              brand: "Rode",
-              ...
-            },
-            ...
-          ]
-        */
-
-        const equipmentData = Array.isArray(
-          response
-        )
+        const apiData = Array.isArray(response)
           ? response
           : response.data || [];
 
-        setDataKamera(equipmentData);
+        // HANYA DATA DARI API
+        // Tidak ada extraEquipment lagi
+        setDataKamera(apiData);
       } catch (error) {
         console.error(
-          "Gagal mengambil data equipment:",
+          "Gagal mengambil data alat:",
           error
-        );
-
-        setErrorEquipment(
-          error instanceof Error
-            ? error.message
-            : "Gagal mengambil data alat."
         );
       } finally {
         setLoadingEquipment(false);
@@ -209,9 +157,9 @@ export default function Home() {
     loadHome();
   }, []);
 
-  // =====================================================
-  // SEARCH EQUIPMENT
-  // =====================================================
+  // =========================================
+  // 3. FUNGSI SEARCH
+  // =========================================
 
   function handleSearch(
     event: React.FormEvent<HTMLFormElement>
@@ -221,23 +169,12 @@ export default function Home() {
     const keyword =
       searchKeyword.trim().toLowerCase();
 
-    // Jika search kosong
+    // Kalau search kosong,
+    // tampilkan kembali semua produk
     if (!keyword) {
-      setSearchResults([]);
-      setHasSearched(false);
+      setSearchResults(null);
       return;
     }
-
-    /*
-      PENCARIAN HANYA DILAKUKAN PADA DATA
-      YANG BERASAL DARI API EQUIPMENT.
-
-      Yang dicari:
-      - nama alat
-      - kategori
-      - merek
-      - deskripsi
-    */
 
     const hasil = dataKamera.filter((item) => {
       const nama =
@@ -261,93 +198,100 @@ export default function Home() {
     });
 
     setSearchResults(hasil);
-    setHasSearched(true);
   }
 
-  // =====================================================
-  // LOADING
-  // =====================================================
+  // =========================================
+  // 4. DATA YANG DITAMPILKAN
+  // =========================================
+
+  const alatYangDitampilkan =
+    searchResults !== null
+      ? searchResults
+      : dataKamera;
+
+  // =========================================
+  // 5. LOADING CEK ROLE
+  // =========================================
 
   if (checkingRole) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <p className="text-sm text-zinc-400">
+        <p className="text-zinc-400">
           Memuat CamSpace...
         </p>
       </div>
     );
   }
 
-  // =====================================================
-  // LANDING PAGE ADMIN
-  // =====================================================
+  // =========================================
+  // 6. LANDING PAGE ADMIN
+  // HERO SAJA
+  // =========================================
 
   if (role === "admin") {
     return (
-      <main className="min-h-screen bg-black text-white">
+      <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900 dark:bg-black dark:text-zinc-100">
 
-        <section className="flex min-h-[calc(100vh-70px)] items-center justify-center px-6">
+        {/* HERO ADMIN */}
 
-          <div className="mx-auto max-w-4xl text-center">
+        <section className="relative overflow-hidden bg-black px-6 py-20 text-white">
+
+          <div className="mx-auto max-w-5xl space-y-6 text-center">
 
             <span className="inline-block rounded-full border border-zinc-800 bg-zinc-900 px-4 py-1.5 text-xs font-semibold text-zinc-300">
               Admin CamSpace
             </span>
 
-            <h1 className="mt-8 text-4xl font-black leading-tight tracking-tight sm:text-6xl">
+            <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-6xl">
 
-              Selamat Datang di
+              Kelola CamSpace
 
-              <br />
+              <br className="hidden sm:block" />
 
               <span className="text-zinc-400">
-                CamSpace Admin
+                dengan Lebih Mudah
               </span>
 
             </h1>
 
-            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-zinc-400 sm:text-lg">
-              Kelola alat dan pantau aktivitas
-              peminjaman CamSpace melalui halaman
-              administrasi.
+            <p className="mx-auto max-w-2xl text-base text-zinc-400 sm:text-lg">
+              Kelola alat, pantau peminjaman, dan
+              proses persetujuan melalui sistem
+              administrasi CamSpace ^w^.
             </p>
 
           </div>
 
         </section>
 
-      </main>
+      </div>
     );
   }
 
-  // =====================================================
-  // LANDING PAGE USER / PENGUNJUNG
-  // =====================================================
+  // =========================================
+  // 7. LANDING PAGE USER / PENGUNJUNG
+  // =========================================
 
   return (
-    <main className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-black dark:text-zinc-100">
+    <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900 dark:bg-black dark:text-zinc-100">
 
-      {/* =================================================
-          HERO
-      ================================================= */}
+      {/* =========================================
+          HERO USER
+      ========================================= */}
 
       <section className="relative overflow-hidden bg-black px-6 py-20 text-white">
 
-        <div className="mx-auto max-w-5xl text-center">
-
-          {/* LABEL */}
+        <div className="mx-auto max-w-5xl space-y-6 text-center">
 
           <span className="inline-block rounded-full border border-zinc-800 bg-zinc-900 px-4 py-1.5 text-xs font-semibold text-zinc-300">
             Platform Sewa Alat Konten & Fotografi
           </span>
 
-          {/* TITLE */}
-
-          <h1 className="mt-8 text-4xl font-black leading-tight tracking-tight sm:text-6xl">
+          <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-6xl">
 
             Let&apos;s Create Beautiful Work
 
-            <br />
+            <br className="hidden sm:block" />
 
             <span className="text-zinc-400">
               Together with CamSpace
@@ -355,25 +299,21 @@ export default function Home() {
 
           </h1>
 
-          {/* DESCRIPTION */}
-
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-zinc-400 sm:text-lg">
+          <p className="mx-auto max-w-2xl text-base text-zinc-400 sm:text-lg">
             Sewa kamera DSLR, Mirrorless, Digicam,
             Lensa, Lighting, dan Tripod untuk
             keperluan tugas, pembuatan konten,
             hingga dokumentasi acara.
           </p>
 
-          {/* =================================================
-              SEARCH
-          ================================================= */}
+          {/* SEARCH */}
 
-          <form
-            onSubmit={handleSearch}
-            className="mx-auto mt-10 max-w-2xl"
-          >
+          <div className="mx-auto max-w-xl pt-4">
 
-            <div className="flex items-center rounded-2xl border border-zinc-800 bg-zinc-900 p-2">
+            <form
+              onSubmit={handleSearch}
+              className="flex flex-col gap-2 rounded-2xl border border-zinc-800 bg-zinc-900 p-2 sm:flex-row"
+            >
 
               <input
                 type="text"
@@ -384,365 +324,200 @@ export default function Home() {
                   )
                 }
                 placeholder="Cari kamera, lensa, atau lighting..."
-                className="min-w-0 flex-1 bg-transparent px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500"
+                className="w-full bg-transparent px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none"
               />
 
               <button
                 type="submit"
-                className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200"
+                className="rounded-xl bg-white px-6 py-3 text-center text-sm font-semibold text-black transition hover:bg-zinc-200"
               >
                 Cari Alat
               </button>
 
-            </div>
+            </form>
 
-          </form>
+          </div>
 
         </div>
 
       </section>
 
-      {/* =================================================
-          HASIL SEARCH
-      ================================================= */}
+      {/* =========================================
+          PRODUK POPULER
+      ========================================= */}
 
-      {hasSearched && (
-        <section className="mx-auto max-w-6xl px-6 py-14">
+      <section className="mx-auto max-w-6xl px-6 py-16">
 
-          <div className="mb-8">
+        {/* HEADER */}
 
-            <h2 className="text-2xl font-bold">
-              Hasil Pencarian
+        <div className="mb-8 flex items-center justify-between">
+
+          <div>
+
+            <h2 className="text-2xl font-bold tracking-tight">
+              {searchResults !== null
+                ? "Hasil Pencarian"
+                : "Kamera & Alat Populer"}
             </h2>
 
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-
-              Menampilkan hasil untuk{" "}
-
-              <span className="font-semibold text-zinc-900 dark:text-white">
-                &quot;{searchKeyword}&quot;
-              </span>
-
-            </p>
-
-          </div>
-
-          {/* =================================================
-              TIDAK DITEMUKAN
-          ================================================= */}
-
-          {searchResults.length === 0 ? (
-
-            <div className="rounded-2xl border border-zinc-200 bg-white px-6 py-12 text-center dark:border-zinc-800 dark:bg-zinc-900">
-
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-zinc-100 text-xl dark:bg-zinc-800">
-                ?
-              </div>
-
-              <h3 className="mt-4 text-lg font-bold">
-                Alat tidak ditemukan
-              </h3>
-
-              <p className="mx-auto mt-2 max-w-md text-sm text-zinc-500 dark:text-zinc-400">
-                Alat yang kamu cari tidak tersedia
-                di katalog CamSpace.
-              </p>
-
-            </div>
-
-          ) : (
-
-            /* =================================================
-               HASIL DITEMUKAN
-            ================================================= */
-
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
-              {searchResults.map((item) => (
-
-                <div
-                  key={item.id}
-                  className="flex flex-col justify-between overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
-                >
-
-                  <div className="p-5">
-
-                    {/* IMAGE */}
-
-                    <div className="h-48 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-
-                      {item.image_url ||
-                      gambarAlat[item.id] ? (
-
-                        <img
-                          src={
-                            item.image_url ||
-                            gambarAlat[item.id]
-                          }
-                          alt={item.name}
-                          className="h-full w-full object-cover"
-                        />
-
-                      ) : (
-
-                        <div className="flex h-full items-center justify-center text-sm text-zinc-400">
-                          Tidak ada gambar
-                        </div>
-
-                      )}
-
-                    </div>
-
-                    {/* CATEGORY + STOCK */}
-
-                    <div className="mt-4 flex items-center justify-between">
-
-                      <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                        {item.category}
-                      </span>
-
-                      <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                        Stok: {item.stock}
-                      </span>
-
-                    </div>
-
-                    {/* NAME */}
-
-                    <h3 className="mt-2 text-lg font-bold">
-                      {item.name}
-                    </h3>
-
-                    {/* BRAND */}
-
-                    {item.brand && (
-                      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                        {item.brand}
-                      </p>
-                    )}
-
-                    {/* PRICE */}
-
-                    <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                      Rp{" "}
-                      {Number(
-                        item.price_per_day
-                      ).toLocaleString("id-ID")}
-                      {" / hari"}
-                    </p>
-
-                  </div>
-
-                  {/* DETAIL */}
-
-                  <div className="px-5 pb-5">
-
-                    <Link
-                      href={`/kamera/${item.id}`}
-                      className="block rounded-xl bg-black py-3 text-center text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-                    >
-                      Lihat Detail & Sewa
-                    </Link>
-
-                  </div>
-
-                </div>
-
-              ))}
-
-            </div>
-
-          )}
-
-        </section>
-      )}
-
-      {/* =================================================
-          ERROR EQUIPMENT
-      ================================================= */}
-
-      {!hasSearched && errorEquipment && (
-        <section className="mx-auto max-w-6xl px-6 py-10">
-
-          <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-900">
-
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {errorEquipment}
+              {searchResults !== null
+                ? `Hasil pencarian untuk "${searchKeyword}"`
+                : "Pilihan alat untuk kebutuhan multimedia"}
             </p>
 
           </div>
 
-        </section>
-      )}
+          <Link
+            href="/kamera"
+            className="text-sm font-semibold text-zinc-900 hover:underline dark:text-zinc-100"
+          >
+            Lihat Semua →
+          </Link>
 
-      {/* =================================================
-          KATALOG POPULER
-          HANYA MUNCUL SEBELUM SEARCH
-      ================================================= */}
+        </div>
 
-      {!hasSearched && (
-        <section className="mx-auto max-w-6xl px-6 py-16">
+        {/* LOADING */}
 
-          <div className="mb-8 flex items-end justify-between gap-4">
+        {loadingEquipment ? (
 
-            <div>
+          <div className="rounded-2xl border border-zinc-200 bg-white p-10 text-center dark:border-zinc-800 dark:bg-zinc-900">
 
-              <h2 className="text-2xl font-bold tracking-tight">
-                Kamera & Alat Populer
-              </h2>
+            <p className="text-sm text-zinc-500">
+              Memuat alat...
+            </p>
 
-              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                Pilihan alat yang tersedia di
-                katalog CamSpace
-              </p>
+          </div>
 
-            </div>
+        ) : searchResults !== null &&
+          searchResults.length === 0 ? (
+
+          /* =========================================
+             SEARCH TIDAK DITEMUKAN
+          ========================================= */
+
+          <div className="rounded-2xl border border-zinc-200 bg-white p-10 text-center dark:border-zinc-800 dark:bg-zinc-900">
+
+            <p className="text-sm text-zinc-500">
+              Alat yang kamu cari tidak ditemukan
+              di katalog CamSpace.
+            </p>
+
+          </div>
+
+        ) : alatYangDitampilkan.length === 0 ? (
+
+          /* EMPTY STATE */
+
+          <div className="rounded-2xl border border-zinc-200 bg-white p-10 text-center dark:border-zinc-800 dark:bg-zinc-900">
+
+            <p className="text-sm text-zinc-500">
+              Belum ada alat multimedia tersedia.
+            </p>
 
             <Link
               href="/kamera"
-              className="shrink-0 text-sm font-semibold text-zinc-900 hover:underline dark:text-zinc-100"
+              className="mt-4 inline-block rounded-xl bg-black px-5 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
             >
-              Lihat Semua →
+              Lihat Katalog
             </Link>
 
           </div>
 
-          {/* =================================================
-              LOADING
-          ================================================= */}
+        ) : (
 
-          {loadingEquipment ? (
+          /* =========================================
+             PRODUCT GRID
+          ========================================= */
 
-            <div className="rounded-2xl border border-zinc-200 bg-white p-10 text-center dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
 
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Memuat katalog alat...
-              </p>
+            {alatYangDitampilkan.map((item) => (
 
-            </div>
+              <div
+                key={item.id}
+                className="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+              >
 
-          ) : dataKamera.length === 0 ? (
+                <div>
 
-            /* =================================================
-               EMPTY
-            ================================================= */
+                  {/* IMAGE */}
 
-            <div className="rounded-2xl border border-zinc-200 bg-white p-10 text-center dark:border-zinc-800 dark:bg-zinc-900">
+                  <div className="h-44 w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
 
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Belum ada alat multimedia
-                tersedia.
-              </p>
+                    {item.image_url ||
+                    gambarAlat[item.id] ? (
 
-            </div>
+                      <img
+                        src={
+                          item.image_url ||
+                          gambarAlat[item.id]
+                        }
+                        alt={item.name}
+                        className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                      />
 
-          ) : (
+                    ) : (
 
-            /* =================================================
-               EQUIPMENT GRID
-            ================================================= */
+                      <div className="flex h-full items-center justify-center text-sm text-zinc-400">
+                        Tidak ada gambar
+                      </div>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
-              {dataKamera.map((item) => (
-
-                <div
-                  key={item.id}
-                  className="flex flex-col justify-between overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
-                >
-
-                  <div className="p-5">
-
-                    {/* IMAGE */}
-
-                    <div className="h-48 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-
-                      {item.image_url ||
-                      gambarAlat[item.id] ? (
-
-                        <img
-                          src={
-                            item.image_url ||
-                            gambarAlat[item.id]
-                          }
-                          alt={item.name}
-                          className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
-                        />
-
-                      ) : (
-
-                        <div className="flex h-full items-center justify-center text-sm text-zinc-400">
-                          Tidak ada gambar
-                        </div>
-
-                      )}
-
-                    </div>
-
-                    {/* CATEGORY + STOCK */}
-
-                    <div className="mt-4 flex items-center justify-between">
-
-                      <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                        {item.category}
-                      </span>
-
-                      <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                        Stok: {item.stock}
-                      </span>
-
-                    </div>
-
-                    {/* NAME */}
-
-                    <h3 className="mt-2 text-lg font-bold">
-                      {item.name}
-                    </h3>
-
-                    {/* BRAND */}
-
-                    {item.brand && (
-                      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                        {item.brand}
-                      </p>
                     )}
 
-                    {/* PRICE */}
+                  </div>
 
-                    <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                      Rp{" "}
-                      {Number(
-                        item.price_per_day
-                      ).toLocaleString("id-ID")}
-                      {" / hari"}
-                    </p>
+                  {/* CATEGORY + STOCK */}
+
+                  <div className="mt-4 flex items-center justify-between">
+
+                    <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                      {item.category}
+                    </span>
+
+                    <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                      Stok: {item.stock}
+                    </span>
 
                   </div>
 
-                  {/* DETAIL */}
+                  {/* NAME */}
 
-                  <div className="px-5 pb-5">
+                  <h3 className="mt-1 text-lg font-bold">
+                    {item.name}
+                  </h3>
 
-                    <Link
-                      href={`/kamera/${item.id}`}
-                      className="block rounded-xl bg-black py-3 text-center text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-                    >
-                      Lihat Detail & Sewa
-                    </Link>
+                  {/* PRICE */}
 
-                  </div>
+                  <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                    Rp
+                    {Number(
+                      item.price_per_day
+                    ).toLocaleString("id-ID")}
+                    {" / hari"}
+                  </p>
 
                 </div>
 
-              ))}
+                {/* DETAIL BUTTON */}
 
-            </div>
+                <Link
+                  href={`/kamera/${item.id}`}
+                  className="mt-4 block rounded-xl bg-black py-2.5 text-center text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                >
+                  Lihat Detail & Sewa
+                </Link>
 
-          )}
+              </div>
 
-        </section>
-      )}
+            ))}
 
-    </main>
+          </div>
+
+        )}
+
+      </section>
+
+    </div>
   );
 }
