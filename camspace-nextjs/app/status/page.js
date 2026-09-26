@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { apiFetch } from "@/lib/api";
 
 export default function StatusPage() {
   const router = useRouter();
@@ -12,10 +11,14 @@ export default function StatusPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    function loadRentals() {
+    async function loadRentals() {
       try {
         setLoading(true);
         setError("");
+
+        // ==============================
+        // CEK LOGIN
+        // ==============================
 
         const token = localStorage.getItem("camspace_token");
 
@@ -25,71 +28,66 @@ export default function StatusPage() {
         }
 
         // ==============================
-        // CEK USER LOGIN
+        // AMBIL USER LOGIN
         // ==============================
 
         const currentUser = localStorage.getItem(
           "camspace_current_user"
         );
 
-        let userId = null;
-
-        // Jika ADMIN
-        if (currentUser) {
-          const user = JSON.parse(currentUser);
-
-          if (user.role === "admin") {
-            userId = user.user_id;
-          }
+        if (!currentUser) {
+          router.replace("/login");
+          return;
         }
 
-        // ==============================
-        // AMBIL USER ID USER BIASA
-        // ==============================
+        const user = JSON.parse(currentUser);
+
+        const userId = user.user_id;
 
         if (!userId) {
-          // Untuk user biasa, ID pengguna
-          // diambil dari data yang tersimpan
-          // saat login.
-          const savedUser = localStorage.getItem(
-            "camspace_current_user"
+          throw new Error(
+            "Data pengguna tidak ditemukan."
           );
-
-          if (savedUser) {
-            const user = JSON.parse(savedUser);
-            userId = user.user_id;
-          }
         }
 
+        console.log("USER LOGIN:", user);
+
         // ==============================
-        // AMBIL DATA RENTAL
-        // DARI LOCAL STORAGE
+        // AMBIL DATA RENTAL DARI API
         // ==============================
 
-        const rentalData = JSON.parse(
-          localStorage.getItem("camspace_rentals") || "[]"
-        );
+        const response = await fetch("/api/rentals", {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        });
 
-        console.log("DATA RENTALS LOCAL:", rentalData);
+        const data = await response.json();
 
-        if (!Array.isArray(rentalData)) {
+        console.log("DATA RENTALS API:", data);
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "Gagal mengambil data peminjaman."
+          );
+        }
+
+        if (!Array.isArray(data)) {
           throw new Error(
             "Format data peminjaman tidak sesuai."
           );
         }
 
         // ==============================
-        // FILTER BERDASARKAN USER
+        // FILTER BERDASARKAN USER LOGIN
         // ==============================
 
-        let userRentals = rentalData;
-
-        if (userId) {
-          userRentals = rentalData.filter(
-            (rental) =>
-              Number(rental.user_id) === Number(userId)
-          );
-        }
+        const userRentals = data.filter(
+          (rental) =>
+            Number(rental.user_id) === Number(userId)
+        );
 
         console.log(
           "PEMINJAMAN USER:",
@@ -115,6 +113,10 @@ export default function StatusPage() {
     loadRentals();
   }, [router]);
 
+  // ==============================
+  // FORMAT TANGGAL
+  // ==============================
+
   function formatTanggal(tanggal) {
     if (!tanggal) return "-";
 
@@ -127,11 +129,19 @@ export default function StatusPage() {
     });
   }
 
+  // ==============================
+  // FORMAT RUPIAH
+  // ==============================
+
   function formatRupiah(nominal) {
     return `Rp${Number(
       nominal || 0
     ).toLocaleString("id-ID")}`;
   }
+
+  // ==============================
+  // STATUS
+  // ==============================
 
   function getStatus(status) {
     switch (status) {
@@ -257,7 +267,7 @@ export default function StatusPage() {
               return (
                 <div
                   key={rental.id}
-                  className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
+                  className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-md shadow-zinc-300/50 transition hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30"
                 >
 
                   {/* INFORMASI UTAMA */}
