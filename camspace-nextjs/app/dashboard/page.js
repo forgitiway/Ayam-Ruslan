@@ -173,9 +173,6 @@ export default function DashboardPage() {
           Informasi Profil
         </h2>
 
-        <p className="mt-1 text-sm text-zinc-500">
-          Perbarui informasi kontakmu.
-        </p>
 
         <div className="mt-6 space-y-4">
 
@@ -290,13 +287,10 @@ export default function DashboardPage() {
               Peminjaman Terbaru
             </h2>
 
-            <p className="text-sm text-zinc-500">
-              Aktivitas peminjaman terakhir kamu.
-            </p>
           </div>
 
           <Link
-            href="/status"
+            href="/peminjaman"
             className="text-sm font-semibold hover:underline"
           >
             Lihat Semua →
@@ -337,7 +331,7 @@ export default function DashboardPage() {
                 </span>
 
                 <Link
-                  href="/status"
+                  href="/peminjaman"
                   className="text-sm font-semibold hover:underline"
                 >
                   Detail

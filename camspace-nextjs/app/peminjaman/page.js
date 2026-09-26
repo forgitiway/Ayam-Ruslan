@@ -170,12 +170,7 @@ export default function PeminjamanPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold">Status</h2>
 
-              <Link
-                href="/status"
-                className="text-sm font-semibold text-zinc-900 hover:underline dark:text-zinc-100"
-              >
-                Lihat Status →
-              </Link>
+
             </div>
 
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
