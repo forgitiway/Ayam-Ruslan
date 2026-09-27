@@ -201,14 +201,32 @@ Pada tahap pengembangan frontend, data alat dan data peminjaman masih menggunaka
 
 Struktur halaman utama CamSpace:
 
-```text
-/                       → Beranda
-/login                  → Login
-/register               → Registrasi
-/dashboard              → Dashboard pengguna
-/kamera                 → Katalog alat
-/kamera/[id]            → Detail alat
-/peminjaman             → Peminjaman saya
-/peminjaman/ajukan      → Form pengajuan peminjaman
-/status                 → Status peminjaman
-/admin/approval         → Approval pengajuan oleh admin
+CamSpace
+│
+├── app/
+│   ├── login/                 → Halaman login
+│   ├── register/              → Registrasi akun
+│   ├── dashboard/             → Dashboard pengguna
+│   ├── kamera/                → Katalog alat
+│   │   ├── [id]/              → Detail alat
+│   │   ├── tambah/            → Tambah alat
+│   │   └── [id]/edit/         → Edit alat
+│   ├── peminjaman/            → Riwayat peminjaman
+│   │   └── ajukan/            → Form pengajuan
+│   ├── admin/approval/        → Approval admin
+│   │
+│   └── api/
+│       ├── equipment/         → API alat
+│       ├── rentals/           → API peminjaman
+│       ├── admin/approval/    → API approval
+│       └── upload/            → API upload
+│
+├── components/
+│   ├── Navbar.js
+│   └── Footer.js
+│
+├── lib/
+│   └── api.js                 → Penghubung ke API
+│
+└── public/
+    └── images/                → Gambar alat
