@@ -1,155 +1,167 @@
-
 "use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 
-const peminjamanTerbaru = [
-  {
-    id: "REQ-101",
-    alat: "Canon EOS 600D",
-    tanggal: "12 - 14 September 2026",
-    status: "Menunggu Approval",
-  },
-  {
-    id: "REQ-102",
-    alat: "Sony Alpha A6000",
-    tanggal: "15 - 16 September 2026",
-    status: "Disetujui",
-  },
-];
-
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [rentals, setRentals] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [saving, setSaving] = useState(false);
 
-          useEffect(() => {
-          async function getUser() {
-            try {
-              const token = localStorage.getItem("camspace_token");
+  useEffect(() => {
+    async function getUser() {
+      try {
+        const token = localStorage.getItem("camspace_token");
 
-              if (!token) {
-                setLoading(false);
-                return;
-              }
+        if (!token) {
+          setLoading(false);
+          return;
+        }
 
-              const currentUser = localStorage.getItem("camspace_current_user");
+        let userData = null;
 
-              if (currentUser) {
-                const admin = JSON.parse(currentUser);
+        const currentUser = localStorage.getItem("camspace_current_user");
 
-                setUser(admin);
+        if (currentUser) {
+          const admin = JSON.parse(currentUser);
+          userData = admin;
+          setUser(admin);
 
-                const savedProfile = JSON.parse(
-                  localStorage.getItem(
-                    `camspace_profile_${admin.user_id || admin.id}`
-                  ) || "{}"
-                );
+          const savedProfile = JSON.parse(
+            localStorage.getItem(
+              `camspace_profile_${admin.user_id || admin.id}`
+            ) || "{}"
+          );
 
-                setName(savedProfile.name || admin.name || "");
-                setPhone(savedProfile.phone || admin.phone || "");
+          setName(savedProfile.name || admin.name || "");
+          setPhone(savedProfile.phone || admin.phone || "");
+        } else {
+          const response = await apiFetch("/me", {
+            method: "GET",
+            token,
+          });
 
-                setLoading(false);
-                return;
-              }
+          userData =
+            response.user ||
+            response.data?.user ||
+            response.data ||
+            response;
 
-              const response = await apiFetch("/me", {
-                method: "GET",
-                token,
-              });
+          setUser(userData);
 
-              const userData =
-                response.user ||
-                response.data?.user ||
-                response.data ||
-                response;
+          const savedProfile = JSON.parse(
+            localStorage.getItem(
+              `camspace_profile_${userData.user_id || userData.id}`
+            ) || "{}"
+          );
 
-              setUser(userData);
+          setName(
+            savedProfile.name ||
+              userData.name ||
+              userData.nama ||
+              userData.full_name ||
+              ""
+          );
 
-              const savedProfile = JSON.parse(
-                localStorage.getItem(
-                  `camspace_profile_${userData.user_id || userData.id}`
-                ) || "{}"
-              );
+          setPhone(
+            savedProfile.phone ||
+              userData.phone ||
+              userData.nomor_hp ||
+              userData.no_hp ||
+              ""
+          );
+        }
 
-              setName(
-                savedProfile.name ||
-                  userData.name ||
-                  userData.nama ||
-                  userData.full_name ||
-                  ""
-              );
+        // Ambil data rental user
+        const rentalResponse = await fetch("/api/rentals");
+        const rentalData = await rentalResponse.json();
 
-              setPhone(
-                savedProfile.phone ||
-                  userData.phone ||
-                  userData.nomor_hp ||
-                  userData.no_hp ||
-                  ""
-              );
-            } catch (err) {
-              console.error("Gagal mengambil data user:", err);
-            } finally {
-              setLoading(false);
-            }
-          }
+        const rentalList = Array.isArray(rentalData)
+          ? rentalData
+          : rentalData.data || rentalData.rentals || [];
 
-          getUser();
-        }, []);
+        const userRentals = rentalList.filter(
+          (r) =>
+            Number(r.user_id) ===
+            Number(userData.user_id || userData.id)
+        );
+
+        setRentals(userRentals);
+      } catch (err) {
+        console.error("Gagal mengambil data:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    getUser();
+  }, []);
 
   async function handleSavePhone() {
-  try {
-    setSaving(true);
+    try {
+      setSaving(true);
 
-    if (!user) return;
+      if (!user) return;
 
-    localStorage.setItem(
-      `camspace_profile_${user.user_id || user.id}`,
-      JSON.stringify({
-        name,
-        phone,
-      })
-    );
+      localStorage.setItem(
+        `camspace_profile_${user.user_id || user.id}`,
+        JSON.stringify({
+          name,
+          phone,
+        })
+      );
 
-    setShowSuccess(true);
+      setShowSuccess(true);
 
-    setTimeout(() => {
-      setShowSuccess(false);
-    }, 2500);
-  } finally {
-    setSaving(false);
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 2500);
+    } finally {
+      setSaving(false);
+    }
   }
-}
+
+  const peminjamanAktif = rentals.filter(
+    (r) => r.status === "ongoing"
+  ).length;
+
+  const menungguApproval = rentals.filter(
+    (r) => r.status === "pending"
+  ).length;
+
+  const peminjamanSelesai = rentals.filter(
+    (r) => r.status === "completed"
+  ).length;
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12 space-y-8">
+    <div className="mx-auto max-w-5xl space-y-8 px-6 py-12">
 
       {/* Toast */}
-              <div
-          className={`fixed right-6 top-20 z-50 transition-all duration-300 ${
-            showSuccess
-              ? "translate-x-0 opacity-100"
-              : "translate-x-10 opacity-0 pointer-events-none"
-          }`}
-        >
-          <div className="flex items-center gap-3 rounded-xl bg-green-600 px-5 py-3 text-white shadow-xl">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white font-bold text-green-600">
-              ✓
-            </div>
+      <div
+        className={`fixed right-6 top-20 z-50 transition-all duration-300 ${
+          showSuccess
+            ? "translate-x-0 opacity-100"
+            : "pointer-events-none translate-x-10 opacity-0"
+        }`}
+      >
+        <div className="flex items-center gap-3 rounded-xl bg-green-600 px-5 py-3 text-white shadow-xl">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white font-bold text-green-600">
+            ✓
+          </div>
 
-            <div>
-              <p className="text-sm font-semibold">Berhasil!</p>
-              <p className="text-xs opacity-90">
-                Profil berhasil diperbarui.
-              </p>
-            </div>
+          <div>
+            <p className="text-sm font-semibold">Berhasil!</p>
+            <p className="text-xs opacity-90">
+              Profil berhasil diperbarui.
+            </p>
           </div>
         </div>
+      </div>
 
       {/* Header */}
       <div>
@@ -168,15 +180,12 @@ export default function DashboardPage() {
 
       {/* Informasi Profil */}
       <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-
         <h2 className="text-xl font-bold">
           Informasi Profil
         </h2>
 
-
         <div className="mt-6 space-y-4">
 
-          {/* Nama */}
           <div>
             <label className="mb-2 block text-sm font-medium">
               Nama
@@ -186,12 +195,10 @@ export default function DashboardPage() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Masukkan nama"
               className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-black dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
             />
           </div>
 
-          {/* Email */}
           <div>
             <label className="mb-2 block text-sm font-medium">
               Alamat Email
@@ -205,7 +212,6 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* Nomor HP */}
           <div>
             <label className="mb-2 block text-sm font-medium">
               Nomor HP
@@ -227,7 +233,6 @@ export default function DashboardPage() {
           >
             {saving ? "Menyimpan..." : "Simpan Perubahan"}
           </button>
-
         </div>
       </div>
 
@@ -240,7 +245,7 @@ export default function DashboardPage() {
           </p>
 
           <h2 className="mt-2 text-3xl font-black">
-            1
+            {peminjamanAktif}
           </h2>
 
           <p className="mt-1 text-xs text-zinc-500">
@@ -254,7 +259,7 @@ export default function DashboardPage() {
           </p>
 
           <h2 className="mt-2 text-3xl font-black">
-            1
+            {menungguApproval}
           </h2>
 
           <p className="mt-1 text-xs text-zinc-500">
@@ -268,7 +273,7 @@ export default function DashboardPage() {
           </p>
 
           <h2 className="mt-2 text-3xl font-black">
-            1
+            {peminjamanSelesai}
           </h2>
 
           <p className="mt-1 text-xs text-zinc-500">
@@ -278,76 +283,8 @@ export default function DashboardPage() {
 
       </div>
 
-      {/* Peminjaman Terbaru */}
-      <div className="space-y-4">
-
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-bold">
-              Peminjaman Terbaru
-            </h2>
-
-          </div>
-
-          <Link
-            href="/peminjaman"
-            className="text-sm font-semibold hover:underline"
-          >
-            Lihat Semua →
-          </Link>
-        </div>
-
-        {peminjamanTerbaru.map((item) => (
-          <div
-            key={item.id}
-            className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
-          >
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
-              <div>
-                <p className="text-xs text-zinc-500">
-                  {item.id}
-                </p>
-
-                <h3 className="mt-1 text-lg font-bold">
-                  {item.alat}
-                </h3>
-
-                <p className="mt-1 text-sm text-zinc-500">
-                  {item.tanggal}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-4">
-
-                <span
-                  className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
-                    item.status === "Disetujui"
-                      ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
-                      : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
-                  }`}
-                >
-                  {item.status}
-                </span>
-
-                <Link
-                  href="/peminjaman"
-                  className="text-sm font-semibold hover:underline"
-                >
-                  Detail
-                </Link>
-
-              </div>
-
-            </div>
-          </div>
-        ))}
-
-      </div>
-
       {/* Aksi */}
       <div className="rounded-2xl border border-zinc-200 bg-zinc-100 p-6 dark:border-zinc-800 dark:bg-zinc-900">
-
         <h2 className="text-lg font-bold">
           Butuh alat untuk kebutuhanmu?
         </h2>
@@ -362,7 +299,6 @@ export default function DashboardPage() {
         >
           Lihat Katalog Alat
         </Link>
-
       </div>
 
     </div>
