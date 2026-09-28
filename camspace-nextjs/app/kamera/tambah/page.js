@@ -205,7 +205,7 @@ export default function TambahAlatPage() {
             onChange={handleChange}
             placeholder="Contoh: Kamera Canon EOS"
             required
-            className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-800"
+            className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-800"
           />
         </div>
 
@@ -219,7 +219,7 @@ export default function TambahAlatPage() {
             value={form.category}
             onChange={handleChange}
             required
-            className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-800"
+            className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-800"
           >
             <option value="">Pilih kategori</option>
             <option value="Kamera">Kamera</option>
@@ -242,7 +242,7 @@ export default function TambahAlatPage() {
               min="0"
               placeholder="masukkan harga"
               required
-              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-800"
+              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-800"
             />
           </div>
 
@@ -259,7 +259,7 @@ export default function TambahAlatPage() {
               min="0"
               placeholder="masukkan stok"
               required
-              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-800"
+              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-800"
             />
           </div>
         </div>
@@ -308,7 +308,7 @@ export default function TambahAlatPage() {
             onChange={handleChange}
             rows={5}
             placeholder="Masukkan deskripsi alat..."
-            className="w-full resize-none rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-800"
+            className="w-full resize-none rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-800"
           />
         </div>
 
@@ -323,7 +323,7 @@ export default function TambahAlatPage() {
           <button
             type="submit"
             disabled={saving || uploading}
-            className="flex-1 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex-1 rounded-xl bg-zinc-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {uploading
               ? "Mengupload Gambar..."
